@@ -1,0 +1,1 @@
+Copy `glut32.dll` into `C:\Windows\`

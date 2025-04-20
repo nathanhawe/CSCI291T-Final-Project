@@ -1,0 +1,32 @@
+# Object files
+*.o
+*.obj
+
+# Executable files
+*.exe
+
+# Shared libraries
+*.so
+*.dll
+*.dylib
+
+# Temporary files
+*.swp
+*~
+.#*
+
+# Build directories
+build/
+bin/
+Debug/
+Release/
+
+# CodeBlocks Files
+*.depend
+*.layout
+
+# Override exclusions for specific files
+!/installation_files/glut32.dll
+!ikpFlac.dll
+!ikpMP3.dll
+!irrKlang.dll
