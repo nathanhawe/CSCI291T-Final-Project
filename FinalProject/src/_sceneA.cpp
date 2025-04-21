@@ -4,7 +4,6 @@
 _sceneA::_sceneA()
 {
     //ctor
-    isAutoScroll = true;
 
 }
 
@@ -173,6 +172,7 @@ GLvoid _sceneA::renderScene()
         if(currentSceneState == SCENE_RUNNING || currentSceneState == SCENE_RECOVERY)
         {
             advanceEnemies();
+            drawPlacementCircle(0.05, 0.18);
         }
 
         if(currentSceneState == SCENE_PAUSE)
@@ -264,6 +264,94 @@ void _sceneA::drawRoadVertical(float zStart, float zEnd, float x, float width)
 
     glEnd();
 }
+
+void _sceneA::drawPlacementCircle(float towerSize, float towerRange)
+{
+    if (!isPlacingTower) return;
+    // Is the mouse within the bounds?
+    if (
+        mouseX < -2 || mouseX > 2 ||
+        mouseZ < -1 || mouseZ > 1)
+        return;
+
+    bool isPlacable = true;
+
+    if (
+        mouseX >= -2 - towerSize && mouseX <= 0 + towerSize &&
+        mouseZ <= -0.45 + towerSize && mouseZ >= -0.55 - towerSize)
+    {
+        isPlacable = false;
+    }
+    else if (
+        mouseX >= -2 - towerSize && mouseX <= 0 + towerSize &&
+        mouseZ >= 0.45 - towerSize && mouseZ <= 0.55 + towerSize)
+    {
+        isPlacable = false;
+    }
+    else if (
+        mouseX >= 0 - towerSize && mouseX <= 2 + towerSize &&
+        mouseZ <= -0.1 + towerSize && mouseZ >= -0.2 - towerSize)
+    {
+        isPlacable = false;
+    }
+    else if (
+        mouseX >= 0 - towerSize && mouseX <= 2 + towerSize &&
+        mouseZ >= 0.1 - towerSize && mouseZ <= 0.2 + towerSize)
+    {
+        isPlacable = false;
+    }
+    else if (
+        mouseX >= -0.05 - towerSize && mouseX <= 0.05 + towerSize &&
+        mouseZ <= -0.10 + towerSize && mouseZ >= -0.55 - towerSize)
+    {
+        isPlacable = false;
+    }
+    else if (
+        mouseX >= -0.05 - towerSize && mouseX <= 0.05 + towerSize &&
+        mouseZ >= 0.10 - towerSize && mouseZ <= 0.55 + towerSize)
+    {
+        isPlacable = false;
+    }
+
+
+    /*
+        drawRoadHorizontal(-2, 0, -0.5, 0.1);
+        drawRoadHorizontal(-2, 0, 0.5, 0.1);
+
+        drawRoadVertical(-0.55, -0.10, 0, 0.1);
+        drawRoadVertical(0.55, 0.10, 0, 0.1);
+
+        drawRoadHorizontal(0, 2, -0.15, 0.1);
+        drawRoadHorizontal(0, 2, 0.15, 0.1);
+    */
+    if (isPlacable)
+    {
+        glBegin(GL_POLYGON);
+            glColor4f(0, 255, 0, 0.3);
+            glVertex3f(mouseX - towerRange, 0, mouseZ - towerRange);
+            glVertex3f(mouseX - towerRange, 0, mouseZ + towerRange);
+            glVertex3f(mouseX + towerRange, 0, mouseZ + towerRange);
+            glVertex3f(mouseX + towerRange, 0, mouseZ - towerRange);
+        glEnd();
+
+    }
+
+    glBegin(GL_POLYGON);
+        if(isPlacable)
+        {
+            glColor4f(0, 255, 0, 0.75);
+        }
+        else glColor4f(255, 0, 0, 0.5);
+
+        glVertex3f(mouseX - towerSize, 0, mouseZ - towerSize);
+        glVertex3f(mouseX - towerSize, 0, mouseZ + towerSize);
+        glVertex3f(mouseX + towerSize, 0, mouseZ + towerSize);
+        glVertex3f(mouseX + towerSize, 0, mouseZ - towerSize);
+
+    glEnd();
+    glColor3f(1, 1, 1);
+}
+
 
 void _sceneA::advanceEnemies()
 {
@@ -493,6 +581,7 @@ void _sceneA::reset()
 
 int _sceneA::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+    cout << "wParam = " << wParam << endl;
     switch(uMsg)
     {
         case WM_KEYDOWN:
@@ -526,7 +615,8 @@ int _sceneA::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             }
             else if(currentSceneState == SCENE_RUNNING || currentSceneState == SCENE_RECOVERY)
             {
-                //myInputs->keyPressed(player, playerW);
+                if(wParam == 49) // 1 on keyboard
+                    isPlacingTower = !isPlacingTower;
             }
             else
             {
@@ -546,7 +636,11 @@ int _sceneA::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             break;
 
         case WM_LBUTTONUP:
+            break;
+
         case WM_RBUTTONUP:
+            isPlacingTower = false;
+            break;
         case WM_MBUTTONUP:
             break;
 

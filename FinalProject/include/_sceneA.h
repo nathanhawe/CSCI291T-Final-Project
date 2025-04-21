@@ -58,10 +58,12 @@ class _sceneA: public _baseScene
 
         void drawRoadHorizontal(float xStart, float xEnd, float z, float width);
         void drawRoadVertical(float zStart, float zEnd, float x, float width);
+        void drawPlacementCircle(float towerSize, float towerRange);
 
         void advanceEnemies();
 
-        bool isAutoScroll;
+        bool isPlacingTower = false;
+
         int returnToStateAfterPause;
         GLuint img_popup, img_defeat, img_victory;
 
