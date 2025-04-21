@@ -27,6 +27,8 @@
 #define TOTAL_OBSTACLES 10
 #define OBSTACLE_SPEED 0.00025
 
+
+#define TOTAL_TOWERS 10
 class _sceneA: public _baseScene
 {
     public:
@@ -62,7 +64,10 @@ class _sceneA: public _baseScene
 
         void advanceEnemies();
 
+        void createTowerAtPoint(int towerType, float x, float z);
+
         bool isPlacingTower = false;
+        bool isTowerPlaceable = false;
 
         int returnToStateAfterPause;
         GLuint img_popup, img_defeat, img_victory;
@@ -99,6 +104,22 @@ class _sceneA: public _baseScene
         _3dmodelloader *collidedObstacleW = nullptr;
 
         enemyModel obstacles[TOTAL_OBSTACLES];
+
+        // Towers
+        struct tower
+        {
+            bool isActive;
+            int type;
+            int health;
+            float xMin;
+            float xMax;
+            float yMin;
+            float yMax;
+            float zMin;
+            float zMax;
+        };
+
+        tower towers[TOTAL_TOWERS];
 
 };
 
