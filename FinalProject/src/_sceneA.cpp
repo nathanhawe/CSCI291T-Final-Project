@@ -20,6 +20,7 @@ _sceneA::~_sceneA()
     delete transitionDelayTimer;
     delete textureLoader;
     delete camera;
+    delete enemyFactory;
 
     for (int i = 0; i < TOTAL_OBSTACLES; i++)
     {
@@ -55,10 +56,8 @@ GLint _sceneA::IniGL()
     dim.y = GetSystemMetrics(SM_CYSCREEN);
 
     /* Load obstacles into array */
-    loadVegetaModel(0, MODEL_SKIN_VEGETA_BASE, &obstacles[0].model); loadVegetaWeapon(100, WEAPON_SKIN_VEGETA_BASE, &obstacles[0].weapon);
-    loadVegetaModel(1, MODEL_SKIN_VEGETA_SS, &obstacles[1].model); loadVegetaWeapon(101, WEAPON_SKIN_VEGETA_SS, &obstacles[1].weapon);
-    loadVegetaModel(2, MODEL_SKIN_VEGETA_BASE, &obstacles[2].model); loadVegetaWeapon(102, WEAPON_SKIN_VEGETA_BASE, &obstacles[2].weapon);
-    loadVegetaModel(3, MODEL_SKIN_VEGETA_SS, &obstacles[3].model); loadVegetaWeapon(103, WEAPON_SKIN_VEGETA_SS, &obstacles[3].weapon);
+    for (int i = 0; i < TOTAL_OBSTACLES; i++)
+        enemyFactory->GenerateVegeta(&obstacles[i].model, &obstacles[i].weapon, i);
 
     // Load popup images
     img_popup = textureLoader->loadImages("images/popup.png");
@@ -73,43 +72,6 @@ GLint _sceneA::IniGL()
     return true;
 }
 
-void _sceneA::loadVegetaModel(int id, char* filename, _3dmodelloader **mdl)
-{
-        *mdl = new _3dmodelloader();
-
-        (*mdl)->initModel(MODEL_TRIS_VEGETA, filename);
-        (*mdl)->pos.y = 0.1;
-        (*mdl)->pos.z = 3;
-
-        (*mdl)->scale.x = (*mdl)->scale.y = (*mdl)->scale.z = 0.0035;
-
-        (*mdl)->FaceRight();
-
-        // Action frames
-        (*mdl)->SetActionFrameRange((*mdl)->STAND, 0, 39);
-        (*mdl)->SetActionFrameRange((*mdl)->RUN, 40, 45);
-        (*mdl)->SetActionFrameRange((*mdl)->ATTACK, 46, 53);
-        (*mdl)->SetActionFrameRange((*mdl)->PAIN, 54, 65);
-        (*mdl)->SetActionFrameRange((*mdl)->DEATH, 178, 197);
-        (*mdl)->SetActionFrameRange((*mdl)->TAUNT, 95, 111);
-        (*mdl)->debugId = id;
-}
-
-void _sceneA::loadVegetaWeapon(int id, char* filename, _3dmodelloader **mdl)
-{
-    *mdl = new _3dmodelloader();
-
-        (*mdl)->initModel(WEAPON_TRIS_VEGETA, filename);
-
-        // Action frames
-        (*mdl)->SetActionFrameRange((*mdl)->STAND, 0, 39);
-        (*mdl)->SetActionFrameRange((*mdl)->RUN, 40, 45);
-        (*mdl)->SetActionFrameRange((*mdl)->ATTACK, 46, 53);
-        (*mdl)->SetActionFrameRange((*mdl)->PAIN, 54, 65);
-        (*mdl)->SetActionFrameRange((*mdl)->DEATH, 178, 197);
-        (*mdl)->SetActionFrameRange((*mdl)->TAUNT, 95, 111);
-        (*mdl)->debugId = id;
-}
 
 GLvoid _sceneA::renderScene()
 {
