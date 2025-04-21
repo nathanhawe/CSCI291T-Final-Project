@@ -116,25 +116,21 @@ void _inputs::keyPressed(_3dmodelloader* ply, _3dmodelloader* W )
      switch(wParam)
     {
         case VK_LEFT:
-            ply->ShiftLeft();
-            W->ShiftLeft();
             break;
 
         case VK_RIGHT:
-            ply->ShiftRight();
-            W->ShiftRight();
             break;
 
         case VK_UP:
-            //W->actionTrigger= ply->actionTrigger=ply->ATTACK;
+
             break;
 
         case VK_DOWN:
-            //W->actionTrigger= ply->actionTrigger=ply->RUN;
+
             break;
 
         default:
-            //W->actionTrigger=ply->actionTrigger=ply->RUN;
+
             break;
     }
     cout << "Player Position: (" << ply->pos.x << ", " << ply->pos.y << ", " << ply->pos.z << ")" << endl;

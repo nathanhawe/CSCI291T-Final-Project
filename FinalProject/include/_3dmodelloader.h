@@ -6,10 +6,6 @@
 
 #define ACTION_COUNT 8
 
-#define LANE0_X -0.1
-#define LANE1_X 0
-#define LANE2_X 0.1
-
 /* Vector */
 typedef float vec3_t[3];
 
@@ -135,10 +131,10 @@ class _3dmodelloader
           void Draw();
           void FreeModel (struct md2_model_t *mdl);
           void SetActionFrameRange(unsigned int action, int startFrame, int endFrame);
-          void SetLane(int lane);
-          int GetLane();
-          void ShiftLeft();
-          void ShiftRight();
+          void FaceRight();
+          void FaceLeft();
+          void FaceUp();
+          void FaceDown();
 
           enum {STAND, RUN, JUMP, ATTACK, PAIN, DEATH, TAUNT, SALUTE};
           int actionTrigger =1;
@@ -146,7 +142,7 @@ class _3dmodelloader
           int EndFrame =39;
 
           void actions();
-          vec3 pos;
+          vec3 pos, rotation, scale;
           float dirAngleZ=180;
 
           int n = 0; /* The current frame */
@@ -159,8 +155,12 @@ class _3dmodelloader
 
           bool printFrames = false;
 
+          // For tracking position and movement
+          int path;
+          int pathStep;
+
 	private:
-	    int currentLane = 1;
+
 
     protected:
 };

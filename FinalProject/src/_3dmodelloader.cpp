@@ -4,7 +4,17 @@ _3dmodelloader::_3dmodelloader()
 {
     pos.x = 0;
     pos.y = 0;
-    pos.z =-10;
+    pos.z = 0;
+
+    rotation.x = -90.0;
+    rotation.y = 0;
+    rotation.z = 0;
+
+    scale.x = 1;
+    scale.y = 1;
+    scale.z = 1;
+
+    pathStep = -1;
 
 }
 
@@ -313,28 +323,24 @@ void _3dmodelloader::SetActionFrameRange(unsigned int action, int startFrame, in
 
 }
 
-void _3dmodelloader::SetLane(int lane)
+void _3dmodelloader::FaceRight()
 {
-    switch (lane)
-    {
-        case 0: currentLane=lane; pos.x = LANE0_X; break;
-        case 1: currentLane=lane; pos.x = LANE1_X; break;
-        case 2: currentLane=lane; pos.x = LANE2_X; break;
-    }
+    rotation.z = 0;
 }
 
-int _3dmodelloader::GetLane()
+void _3dmodelloader::FaceLeft()
 {
-    return currentLane;
-}
-void _3dmodelloader::ShiftLeft()
-{
-    SetLane(currentLane - 1);
+    rotation.z = 180;
 }
 
-void _3dmodelloader::ShiftRight()
+void _3dmodelloader::FaceUp()
 {
-    SetLane(currentLane + 1);
+    rotation.z = 90;
+}
+
+void _3dmodelloader::FaceDown()
+{
+    rotation.z = -90;
 }
 
 

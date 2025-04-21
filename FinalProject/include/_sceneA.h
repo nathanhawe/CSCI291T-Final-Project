@@ -10,8 +10,7 @@
 #include<_textureloader.h>
 #include<_3dmodelloader.h>
 #include<_sounds.h>
-
-#define OBSTACLE_SPEED 0.00015
+#include<_enemyFactory.h>
 
 #define RECOVER_TIMER_MS 1000
 #define RECOVER_TIMER_MS 1000
@@ -25,16 +24,8 @@
 #define SOUND_FAIL "sounds/Sad Trombone Wah Wah Wah Fail Sound - Sound Effect #35.mp3"
 
 
-#define TOTAL_OBSTACLES 4
-
-#define MODEL_TRIS_VEGETA "models/vegeta2/tris.md2"
-#define MODEL_SKIN_VEGETA_BASE "models/vegeta2/vegeta.jpg"
-#define MODEL_SKIN_VEGETA_BLACK "models/vegeta2/black.jpg"
-#define MODEL_SKIN_VEGETA_BLUE "models/vegeta2/blue.jpg"
-#define MODEL_SKIN_VEGETA_SS "models/vegeta2/ssvegeta.jpg"
-#define WEAPON_TRIS_VEGETA "models/vegeta2/weapon.md2"
-#define WEAPON_SKIN_VEGETA_BASE "models/vegeta2/weapon.jpg"
-#define WEAPON_SKIN_VEGETA_SS "models/vegeta2/w_bfg.jpg"
+#define TOTAL_OBSTACLES 10
+#define OBSTACLE_SPEED 0.00025
 
 class _sceneA: public _baseScene
 {
@@ -64,8 +55,11 @@ class _sceneA: public _baseScene
         void spawnObstacles();
         _3dmodelloader* getAvailableObstacleModel();
         bool hasCollided();
-        void loadVegetaModel(int id, char *filename, _3dmodelloader **mdl);
-        void loadVegetaWeapon(int id, char *filename, _3dmodelloader **mdl);
+
+        void drawRoadHorizontal(float xStart, float xEnd, float z, float width);
+        void drawRoadVertical(float zStart, float zEnd, float x, float width);
+
+        void advanceEnemies();
 
         bool isAutoScroll;
         int returnToStateAfterPause;
@@ -82,7 +76,7 @@ class _sceneA: public _baseScene
         _timer *transitionDelayTimer = new _timer();
 
         int spawnTimerDelayMs = 0;
-        int spawnTimerDelayMinimumDuration = 1000;
+        int spawnTimerDelayMinimumDuration = 3000;
         int spawnTimerDelayRange = 2500;
 
         _textureLoader *textureLoader = new _textureLoader();
@@ -91,6 +85,8 @@ class _sceneA: public _baseScene
         _camera *camera = new _camera();
 
         // Models
+        _enemyFactory *enemyFactory = new _enemyFactory();
+
         struct enemyModel
         {
             _3dmodelloader *model;
