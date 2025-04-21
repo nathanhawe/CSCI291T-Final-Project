@@ -81,6 +81,10 @@ void _sceneA::loadVegetaModel(int id, char* filename, _3dmodelloader **mdl)
         (*mdl)->pos.y = 0.1;
         (*mdl)->pos.z = 3;
 
+        (*mdl)->scale.x = (*mdl)->scale.y = (*mdl)->scale.z = 0.0035;
+
+        (*mdl)->FaceRight();
+
         // Action frames
         (*mdl)->SetActionFrameRange((*mdl)->STAND, 0, 39);
         (*mdl)->SetActionFrameRange((*mdl)->RUN, 40, 45);
@@ -185,24 +189,28 @@ GLvoid _sceneA::renderScene()
             glColor3f(165, 42, 42);
 
             glVertex3f(-2, 0, -1);
-
             glVertex3f(-2, 0, 1);
-
             glVertex3f(2, 0, 1);
-
             glVertex3f(2, 0, -1);
 
         glEnd();
 
+        drawRoadHorizontal(-2, 0, -0.5, 0.1);
+        drawRoadHorizontal(-2, 0, 0.5, 0.1);
+
+        drawRoadVertical(-0.55, -0.10, 0, 0.1);
+        drawRoadVertical(0.55, 0.10, 0, 0.1);
+
+        drawRoadHorizontal(0, 2, -0.15, 0.1);
+        drawRoadHorizontal(0, 2, 0.15, 0.1);
+
+        glColor3f(1, 1, 1);
 
 
-
+        // Advance enemies
         if(currentSceneState == SCENE_RUNNING || currentSceneState == SCENE_RECOVERY)
         {
-            for(int i = 0; i < TOTAL_OBSTACLES; i++)
-            {
-                obstacles[i].model->pos.z += OBSTACLE_SPEED;
-            }
+            advanceEnemies();
         }
 
         if(currentSceneState == SCENE_PAUSE)
@@ -241,13 +249,19 @@ GLvoid _sceneA::renderScene()
     glPopMatrix();
 
 
+    // Draw enemies on the map
     for (int i = 0; i < TOTAL_OBSTACLES; i++)
     {
+        if (obstacles[i].model->pathStep < 0) continue;
         glPushMatrix();
             glTranslatef(obstacles[i].model->pos.x, obstacles[i].model->pos.y, obstacles[i].model->pos.z);
-            glScalef(0.002, 0.002, 0.002);
-            glRotatef(-90.0, 1, 0, 0);
-            glRotatef(-90.0, 0, 0, 1);
+            glScalef(
+                obstacles[i].model->scale.x,
+                obstacles[i].model->scale.y,
+                obstacles[i].model->scale.y);
+
+            glRotatef(obstacles[i].model->rotation.x, 1, 0, 0);
+            glRotatef(obstacles[i].model->rotation.z, 0, 0, 1);
             obstacles[i].model->actions();
             obstacles[i].weapon->actions();
 
@@ -258,6 +272,110 @@ GLvoid _sceneA::renderScene()
     }
 
 }
+
+void _sceneA::drawRoadHorizontal(float xStart, float xEnd, float z, float width)
+{
+    float w = width / 2.0;
+
+    glBegin(GL_POLYGON);
+            glColor3f(0, 0, 0);
+
+            glVertex3f(xStart, 0, z - w);
+            glVertex3f(xStart, 0, z + w);
+            glVertex3f(xEnd, 0, z + w);
+            glVertex3f(xEnd, 0, z - w);
+
+    glEnd();
+}
+
+void _sceneA::drawRoadVertical(float zStart, float zEnd, float x, float width)
+{
+    float w = width / 2.0;
+
+    glBegin(GL_POLYGON);
+            glColor3f(0, 0, 0);
+
+            glVertex3f(x-w, 0, zStart);
+            glVertex3f(x-w, 0, zEnd);
+            glVertex3f(x+w, 0, zEnd);
+            glVertex3f(x+w, 0, zStart);
+
+    glEnd();
+}
+
+void _sceneA::advanceEnemies()
+{
+    for(int i = 0; i < TOTAL_OBSTACLES; i++)
+    {
+        if (obstacles[i].model->pathStep < 0) continue;
+
+        if(obstacles[i].model->path == 0)
+        {
+            switch(obstacles[i].model->pathStep)
+            {
+                case 0:
+                    obstacles[i].model->FaceRight();
+                    obstacles[i].model->pos.x += OBSTACLE_SPEED;
+
+                    if(obstacles[i].model->pos.x >= 0)
+                        obstacles[i].model->pathStep = 1;
+
+                    break;
+
+                case 1:
+                    obstacles[i].model->FaceDown();
+                    obstacles[i].model->pos.z += OBSTACLE_SPEED;
+
+                    if(obstacles[i].model->pos.z >= -0.15)
+                        obstacles[i].model->pathStep = 2;
+
+                    break;
+
+                case 2:
+                    obstacles[i].model->FaceRight();
+                    obstacles[i].model->pos.x += OBSTACLE_SPEED;
+
+                    if(obstacles[i].model->pos.x >= 2)
+                        obstacles[i].model->pathStep = -1;
+
+                    break;
+            }
+        }
+        else if (obstacles[i].model->path == 1)
+        {
+            switch(obstacles[i].model->pathStep)
+            {
+                case 0:
+                    obstacles[i].model->FaceRight();
+                    obstacles[i].model->pos.x += OBSTACLE_SPEED;
+
+                    if(obstacles[i].model->pos.x >= 0)
+                        obstacles[i].model->pathStep = 1;
+
+                    break;
+
+                case 1:
+                    obstacles[i].model->FaceUp();
+                    obstacles[i].model->pos.z -= OBSTACLE_SPEED;
+
+                    if(obstacles[i].model->pos.z <= 0.15)
+                        obstacles[i].model->pathStep = 2;
+
+                    break;
+
+                case 2:
+                    obstacles[i].model->FaceRight();
+                    obstacles[i].model->pos.x += OBSTACLE_SPEED;
+
+                    if(obstacles[i].model->pos.x >= 2)
+                        obstacles[i].model->pathStep = -1;
+
+                    break;
+            }
+        }
+    }
+}
+
 
 void _sceneA::transitionSceneState()
 {
@@ -293,12 +411,12 @@ void _sceneA::transitionSceneState()
         newState = SCENE_FAILURE;
         transitionDelayTimer->reset();
     }
-    else if(victoryTimer->getTicks() >= VICTORY_TIMER_MS)
+    /*else if(victoryTimer->getTicks() >= VICTORY_TIMER_MS)
     {
         snds->playSound(SOUND_SUCCESS);
         newState = SCENE_VICTORY;
         transitionDelayTimer->reset();
-    }
+    }*/
     else if(
         currentSceneState == SCENE_COLLISION &&
         immunityTimer->getTicks() < RECOVER_TIMER_MS)
@@ -334,83 +452,52 @@ void _sceneA::spawnObstacles()
     if(spawnTimer->getTicks() >= spawnTimerDelayMs)
     {
         // A new obstacle can be spawned
-        int lane = (rand() % 3);
-        int pattern = (rand() % 100);
+        int spawnLocation = (rand() % 100);
 
 
-        if (pattern < 75)
+        _3dmodelloader *obj1 = getAvailableObstacleModel();
+        if(obj1 == nullptr)
         {
-            /* Single Obstacle Pattern */
-            _3dmodelloader *obj1 = getAvailableObstacleModel();
-            if(obj1 == nullptr)
-            {
-                cout << "No obstacles available (pattern 1)." << endl;
-            }
-            else
-            {
-                obj1->pos.z = -2;
-                obj1->SetLane(lane);
-                cout << "Obstacle: " << obj1->debugId << " in lane " << lane << endl;
-            }
+            cout << "*** No obstacles available ***" << endl;
         }
         else
         {
-            /* Double Obstacle Pattern */
-            // Double obstacle pattern placed on either side of lane
-            _3dmodelloader *obj1 = getAvailableObstacleModel();
-            if(obj1 == nullptr)
+
+            if (spawnLocation < 50)
             {
-                cout << "No obstacles available (pattern 1/2)." << endl;
+                obj1->pos.x = -2;
+                obj1->pos.z = -0.5;
+                obj1->path = 0;
             }
             else
             {
-                obj1->pos.z = -2;
-
-                if(lane == 0)
-                {
-                    obj1->SetLane(1);
-                }
-                else obj1->SetLane(0);
-
-                cout << "Obstacle: " << obj1->debugId << " lane " << obj1->GetLane() << endl;
+                // Location B
+                obj1->pos.x = -2;
+                obj1->pos.z = 0.5;
+                obj1->path = 1;
             }
 
-            _3dmodelloader *obj2 = getAvailableObstacleModel();
-            if(obj2 == nullptr)
-            {
-                cout << "No obstacles available (pattern 2/2)." << endl;
-            }
-            else
-            {
-                obj2->pos.z = -2;
+            obj1->pathStep = 0;
 
-                if(lane == 2)
-                {
-                    obj2->SetLane(1);
-                }
-                else obj2->SetLane(2);
+            cout << "Obstacle: " << obj1->debugId << " at spawn location " << obj1->path << endl;
 
-                cout << "Obstacle: " << obj2->debugId << " lane " << obj2->GetLane() << endl;
-            }
         }
-
 
         // Choose new spawn delay interval and reset timer
         spawnTimer->reset();
         spawnTimerDelayMs = (rand() % spawnTimerDelayRange) + spawnTimerDelayMinimumDuration;
 
-        cout << "New Obstacle Pattern: " << pattern << ", Lane: " << lane << ", New Delay: " << spawnTimerDelayMs << endl;
+        cout << "New Delay: " << spawnTimerDelayMs << endl;
     }
 }
 
 _3dmodelloader* _sceneA::getAvailableObstacleModel()
 {
 
-    // Find the first obstacle that is off the screen (z position is > 2)
-    // or nullptr if none are available
+    // Find the first obstacle that is off the screen
     for (int i = 0; i < TOTAL_OBSTACLES; i++)
     {
-        if (obstacles[i].model->pos.z > 2)
+        if (obstacles[i].model->pathStep < 0)
             return obstacles[i].model;
     }
 

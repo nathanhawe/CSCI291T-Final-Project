@@ -11,8 +11,6 @@
 #include<_3dmodelloader.h>
 #include<_sounds.h>
 
-#define OBSTACLE_SPEED 0.00015
-
 #define RECOVER_TIMER_MS 1000
 #define RECOVER_TIMER_MS 1000
 #define IMMUNITY_TIMER_MS 2000
@@ -26,6 +24,7 @@
 
 
 #define TOTAL_OBSTACLES 4
+#define OBSTACLE_SPEED 0.00015
 
 #define MODEL_TRIS_VEGETA "models/vegeta2/tris.md2"
 #define MODEL_SKIN_VEGETA_BASE "models/vegeta2/vegeta.jpg"
@@ -66,6 +65,11 @@ class _sceneA: public _baseScene
         bool hasCollided();
         void loadVegetaModel(int id, char *filename, _3dmodelloader **mdl);
         void loadVegetaWeapon(int id, char *filename, _3dmodelloader **mdl);
+
+        void drawRoadHorizontal(float xStart, float xEnd, float z, float width);
+        void drawRoadVertical(float zStart, float zEnd, float x, float width);
+
+        void advanceEnemies();
 
         bool isAutoScroll;
         int returnToStateAfterPause;
