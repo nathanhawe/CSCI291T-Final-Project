@@ -551,6 +551,7 @@ int _sceneA::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             break;
 
         case WM_MOUSEMOVE:
+            mouseMapping(LOWORD(lParam), HIWORD(lParam));
             break;
 
         case WM_MOUSEWHEEL:

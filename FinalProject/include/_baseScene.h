@@ -23,6 +23,27 @@ class _baseScene
             dim.y = height;
         }
 
+        GLvoid mouseMapping(int x, int y)
+        {
+            // dimension.x and dimension.y will give screen width and height
+            GLint viewPort[4];              // to store view
+            GLdouble modelViewMatrix[16];   // to store model view (camera times the model)
+            GLdouble projectionMatrix[16];  // to store projection
+            GLfloat winX, winY, winZ;       // to get dimensions
+
+            glGetIntegerv(GL_VIEWPORT, viewPort);
+            glGetDoublev(GL_MODELVIEW_MATRIX, modelViewMatrix);
+            glGetDoublev(GL_PROJECTION_MATRIX, projectionMatrix);
+
+            winX = (GLfloat)x;
+            winY = (GLfloat) (viewPort[3] - y);
+            glReadPixels(x, (int)winY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
+
+            gluUnProject(winX, winY, winZ, modelViewMatrix, projectionMatrix, viewPort, &mouseX, &mouseY, &mouseZ);
+
+            //cout << "Mouse Mappings (x,y,z): " << mouseX << ", " << mouseY << ", " << mouseZ << endl;
+        }
+
 
         virtual GLint IniGL() = 0;
         virtual GLvoid renderScene() = 0;
@@ -31,6 +52,7 @@ class _baseScene
         enum {SCENE_START, SCENE_RUNNING, SCENE_COLLISION, SCENE_RECOVERY, SCENE_FAILURE, SCENE_VICTORY, SCENE_EXIT, SCENE_PAUSE, SCENE_TRANSITION} SceneState;
         int currentSceneState=0;
 
+        GLdouble mouseX, mouseY, mouseZ;
 
     protected:
         vec2 dim;
