@@ -69,7 +69,7 @@ class _sceneA: public _baseScene
 
         bool isAutoScroll;
         int returnToStateAfterPause;
-        GLuint img_popup, img_defeat, img_victory;
+        GLuint img_popup, img_defeat, img_victory, img_ground;
 
         _sounds *snds = new _sounds();
         ISound *backgroundMusic;

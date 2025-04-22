@@ -65,6 +65,10 @@ GLint _sceneA::IniGL()
     img_defeat = textureLoader->loadImages("images/defeat.png");
     img_victory = textureLoader->loadImages("images/victory.png");
 
+    img_ground = textureLoader->loadImages("images/ground.jpg");
+
+
+
 
     // Start background music
     snds->initSound();
@@ -181,18 +185,21 @@ GLvoid _sceneA::renderScene()
         glScalef(1, 1, 1);
         glDisable(GL_LIGHTING);
 
-        glBegin(GL_POLYGON);
-            glColor3f(165, 42, 42);
+        glPushMatrix();
 
-            glVertex3f(-2, 0, -1);
+        //glEnable(GL_LIGHTING);
 
-            glVertex3f(-2, 0, 1);
-
-            glVertex3f(2, 0, 1);
-
-            glVertex3f(2, 0, -1);
-
+        glBindTexture(GL_TEXTURE_2D, img_ground);
+        glBegin(GL_QUADS);
+            glTexCoord2f(0.0f, 0.0f); glVertex3f(-2, 0, -1);
+            glTexCoord2f(0.0f, 1.0f); glVertex3f(-2, 0,  1);
+            glTexCoord2f(1.0f, 1.0f); glVertex3f( 2, 0,  1);
+            glTexCoord2f(1.0f, 0.0f); glVertex3f( 2, 0, -1);
         glEnd();
+
+        glPopMatrix();
+
+        //glDisable(GL_TEXTURE_2D);
 
 
 
