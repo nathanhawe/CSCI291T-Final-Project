@@ -63,6 +63,10 @@ GLint _sceneA::IniGL()
     img_defeat = textureLoader->loadImages("images/defeat.png");
     img_victory = textureLoader->loadImages("images/victory.png");
 
+    img_ground = textureLoader->loadImages("images/ground.jpg");
+
+
+
 
     // Start background music
     snds->initSound();
