@@ -4,7 +4,6 @@
 _sceneA::_sceneA()
 {
     //ctor
-    isAutoScroll = true;
 
 }
 
@@ -173,6 +172,7 @@ GLvoid _sceneA::renderScene()
         if(currentSceneState == SCENE_RUNNING || currentSceneState == SCENE_RECOVERY)
         {
             advanceEnemies();
+            drawPlacementCircle(0.05, 0.18);
         }
 
         if(currentSceneState == SCENE_PAUSE)
@@ -233,6 +233,55 @@ GLvoid _sceneA::renderScene()
         glPopMatrix();
     }
 
+    // Draw towers on the map
+    glColor4f(0, 0, 255, 0.8);
+    for (int i = 0; i < TOTAL_TOWERS; i++)
+    {
+        if (!towers[i].isActive) continue;
+
+        glBegin(GL_QUADS);
+
+
+            // Top
+            glVertex3f(towers[i].xMin, towers[i].yMax, towers[i].zMin);
+            glVertex3f(towers[i].xMin, towers[i].yMax, towers[i].zMax);
+            glVertex3f(towers[i].xMax, towers[i].yMax, towers[i].zMax);
+            glVertex3f(towers[i].xMax, towers[i].yMax, towers[i].zMin);
+
+            // Bottom
+            glVertex3f(towers[i].xMin, towers[i].yMin, towers[i].zMin);
+            glVertex3f(towers[i].xMin, towers[i].yMin, towers[i].zMax);
+            glVertex3f(towers[i].xMax, towers[i].yMin, towers[i].zMax);
+            glVertex3f(towers[i].xMax, towers[i].yMin, towers[i].zMin);
+
+            // Front
+            glVertex3f(towers[i].xMin, towers[i].yMax, towers[i].zMax);
+            glVertex3f(towers[i].xMin, towers[i].yMin, towers[i].zMax);
+            glVertex3f(towers[i].xMax, towers[i].yMin, towers[i].zMax);
+            glVertex3f(towers[i].xMax, towers[i].yMax, towers[i].zMax);
+
+            // Back
+            glVertex3f(towers[i].xMin, towers[i].yMax, towers[i].zMin);
+            glVertex3f(towers[i].xMin, towers[i].yMin, towers[i].zMin);
+            glVertex3f(towers[i].xMax, towers[i].yMin, towers[i].zMin);
+            glVertex3f(towers[i].xMax, towers[i].yMax, towers[i].zMin);
+
+            // Left
+            glVertex3f(towers[i].xMin, towers[i].yMax, towers[i].zMin);
+            glVertex3f(towers[i].xMin, towers[i].yMin, towers[i].zMin);
+            glVertex3f(towers[i].xMin, towers[i].yMin, towers[i].zMax);
+            glVertex3f(towers[i].xMin, towers[i].yMax, towers[i].zMax);
+
+            // Right
+            glVertex3f(towers[i].xMax, towers[i].yMax, towers[i].zMin);
+            glVertex3f(towers[i].xMax, towers[i].yMin, towers[i].zMin);
+            glVertex3f(towers[i].xMax, towers[i].yMin, towers[i].zMax);
+            glVertex3f(towers[i].xMax, towers[i].yMax, towers[i].zMax);
+
+        glEnd();
+    }
+    glColor3f(1, 1, 1);
+
 }
 
 void _sceneA::drawRoadHorizontal(float xStart, float xEnd, float z, float width)
@@ -264,6 +313,83 @@ void _sceneA::drawRoadVertical(float zStart, float zEnd, float x, float width)
 
     glEnd();
 }
+
+void _sceneA::drawPlacementCircle(float towerSize, float towerRange)
+{
+    if (!isPlacingTower) return;
+    // Is the mouse within the bounds?
+    if (
+        mouseX < -2 || mouseX > 2 ||
+        mouseZ < -1 || mouseZ > 1)
+        return;
+
+    if (
+        mouseX >= -2 - towerSize && mouseX <= 0 + towerSize &&
+        mouseZ <= -0.45 + towerSize && mouseZ >= -0.55 - towerSize)
+    {
+        isTowerPlaceable = false;
+    }
+    else if (
+        mouseX >= -2 - towerSize && mouseX <= 0 + towerSize &&
+        mouseZ >= 0.45 - towerSize && mouseZ <= 0.55 + towerSize)
+    {
+        isTowerPlaceable = false;
+    }
+    else if (
+        mouseX >= 0 - towerSize && mouseX <= 2 + towerSize &&
+        mouseZ <= -0.1 + towerSize && mouseZ >= -0.2 - towerSize)
+    {
+        isTowerPlaceable = false;
+    }
+    else if (
+        mouseX >= 0 - towerSize && mouseX <= 2 + towerSize &&
+        mouseZ >= 0.1 - towerSize && mouseZ <= 0.2 + towerSize)
+    {
+        isTowerPlaceable = false;
+    }
+    else if (
+        mouseX >= -0.05 - towerSize && mouseX <= 0.05 + towerSize &&
+        mouseZ <= -0.10 + towerSize && mouseZ >= -0.55 - towerSize)
+    {
+        isTowerPlaceable = false;
+    }
+    else if (
+        mouseX >= -0.05 - towerSize && mouseX <= 0.05 + towerSize &&
+        mouseZ >= 0.10 - towerSize && mouseZ <= 0.55 + towerSize)
+    {
+        isTowerPlaceable = false;
+    }
+    else isTowerPlaceable = true;
+    // TODO: Add check of existing towers as well.
+
+    if (isTowerPlaceable)
+    {
+        glBegin(GL_POLYGON);
+            glColor4f(0, 255, 0, 0.3);
+            glVertex3f(mouseX - towerRange, 0, mouseZ - towerRange);
+            glVertex3f(mouseX - towerRange, 0, mouseZ + towerRange);
+            glVertex3f(mouseX + towerRange, 0, mouseZ + towerRange);
+            glVertex3f(mouseX + towerRange, 0, mouseZ - towerRange);
+        glEnd();
+
+    }
+
+    glBegin(GL_POLYGON);
+        if(isTowerPlaceable)
+        {
+            glColor4f(0, 255, 0, 0.75);
+        }
+        else glColor4f(255, 0, 0, 0.5);
+
+        glVertex3f(mouseX - towerSize, 0, mouseZ - towerSize);
+        glVertex3f(mouseX - towerSize, 0, mouseZ + towerSize);
+        glVertex3f(mouseX + towerSize, 0, mouseZ + towerSize);
+        glVertex3f(mouseX + towerSize, 0, mouseZ - towerSize);
+
+    glEnd();
+    glColor3f(1, 1, 1);
+}
+
 
 void _sceneA::advanceEnemies()
 {
@@ -337,6 +463,33 @@ void _sceneA::advanceEnemies()
         }
     }
 }
+
+void _sceneA::createTowerAtPoint(int towerType, float x, float z)
+{
+    if(!isPlacingTower || !isTowerPlaceable) return;
+
+    //find the first available tower slot
+    for (int i = 0; i < TOTAL_TOWERS; i++)
+    {
+        if (towers[i].isActive) continue;
+
+        towers[i].health = 100;
+        towers[i].isActive = true;
+        towers[i].type = towerType;
+
+        towers[i].xMin = x - 0.05;
+        towers[i].xMax = x + 0.05;
+        towers[i].yMin = 0;
+        towers[i].yMax = 0.15;
+        towers[i].zMin = z - 0.05;
+        towers[i].zMax = z + 0.05;
+
+        return;
+    }
+
+    cout << "*** No available towers! ***" << endl;
+}
+
 
 
 void _sceneA::transitionSceneState()
@@ -493,6 +646,7 @@ void _sceneA::reset()
 
 int _sceneA::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+    //cout << "wParam = " << wParam << endl;
     switch(uMsg)
     {
         case WM_KEYDOWN:
@@ -526,7 +680,8 @@ int _sceneA::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             }
             else if(currentSceneState == SCENE_RUNNING || currentSceneState == SCENE_RECOVERY)
             {
-                //myInputs->keyPressed(player, playerW);
+                if(wParam == 49) // 1 on keyboard
+                    isPlacingTower = !isPlacingTower;
             }
             else
             {
@@ -546,11 +701,19 @@ int _sceneA::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             break;
 
         case WM_LBUTTONUP:
+            if(currentSceneState == SCENE_RUNNING)
+                createTowerAtPoint(0, mouseX, mouseZ);
+
+            break;
+
         case WM_RBUTTONUP:
+            isPlacingTower = false;
+            break;
         case WM_MBUTTONUP:
             break;
 
         case WM_MOUSEMOVE:
+            mouseMapping(LOWORD(lParam), HIWORD(lParam));
             break;
 
         case WM_MOUSEWHEEL:
