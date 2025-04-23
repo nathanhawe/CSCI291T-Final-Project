@@ -268,7 +268,7 @@ GLvoid _sceneA::renderScene()
             float towerWidth = towers[i].xMax - towers[i].xMin;
             float towerHeight = towers[i].yMax - towers[i].yMin;
 
-            drawTowerAt(posX, posY, posZ, towerWidth, towerHeight);
+            drawTeslaTowerAt(posX, posY, posZ, towerWidth, towerHeight);
         }
 
     checkAndUpdateTargets();
@@ -418,6 +418,53 @@ void _sceneA::drawTowerAt(float x, float y, float z, float width, float height)
 
     glPopMatrix();
 }
+
+void _sceneA::drawTeslaTowerAt(float x, float y, float z, float width, float height)
+{
+    glPushMatrix();
+    glTranslatef(x, y, z);
+    glScalef(width / 2.0f, height / 6.0f, width / 2.0f);
+
+    // Base
+    glColor3f(0.2f, 0.2f, 0.2f); // Dark metal
+    drawCylinder(1.0f, 1.0f, 2.0f, 16);
+
+    // Coil
+    glTranslatef(0.0, 2.0, 0.0);
+    glColor3f(0.6f, 0.3f, 0.0f); // Copper coil
+    drawCylinder(0.3f, 0.3f, 3.0f, 16);
+
+    // Top Sphere
+    glTranslatef(0.0, 3.0, 0.0);
+    glColor3f(0.8f, 0.8f, 1.0f); // Glow effect
+    glutSolidSphere(0.6, 16, 16);
+
+    glPopMatrix();
+}
+
+void _sceneA::drawCylinder(float baseRadius, float topRadius, float height, int slices)
+{
+    GLUquadric* quad = gluNewQuadric();
+    gluQuadricNormals(quad, GLU_SMOOTH);
+    gluQuadricTexture(quad, GL_TRUE);
+
+    gluCylinder(quad, baseRadius, topRadius, height, slices, 1);
+
+    // Draw base cap
+    glPushMatrix();
+        glRotatef(180.0f, 1.0f, 0.0f, 0.0f);
+        gluDisk(quad, 0.0f, baseRadius, slices, 1);
+    glPopMatrix();
+
+    // Draw top cap
+    glPushMatrix();
+        glTranslatef(0.0f, 0.0f, height);
+        gluDisk(quad, 0.0f, topRadius, slices, 1);
+    glPopMatrix();
+
+    gluDeleteQuadric(quad);
+}
+
 
 void _sceneA::drawGround()
 {
