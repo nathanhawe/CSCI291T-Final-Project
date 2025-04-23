@@ -13,7 +13,7 @@
 #include<_enemyFactory.h>
 #include<_skybox.h>
 
-#define WAVE_SIZE 10
+#define WAVE_SIZE 20
 
 #define RECOVER_TIMER_MS 1000
 #define RECOVER_TIMER_MS 1000
@@ -36,6 +36,8 @@
 
 #define TOTAL_TOWERS 10
 #define TOWER_BASE_COST 4
+#define TOWER_BOMB_COST 2
+
 class _sceneB: public _baseScene
 {
     public:
@@ -73,6 +75,7 @@ class _sceneB: public _baseScene
 
         void createTowerAtPoint(int towerType, float x, float z);
         void drawTowerAt(float x, float y, float z, float width, float height);
+        void drawBombAt(float x, float y, float z, float width, float height);
         void drawGround();
         void drawLasers();
         void checkAndUpdateTargets();
@@ -82,11 +85,12 @@ class _sceneB: public _baseScene
 
         bool isPlacingTower = false;
         bool isTowerPlaceable = false;
+        int placingTowerType;
 
         int returnToStateAfterPause;
         GLuint img_popup, img_defeat, img_victory, ground_tex, tower_tex, roof_tex, dirt_tex;
         GLuint overlay1_notReady, overlay1_ready, overlay1_selected;
-        GLuint overlay2_disabled;
+        GLuint overlay2_notReady, overlay2_ready, overlay2_selected;
         GLuint overlay3_disabled;
 
 
@@ -103,7 +107,7 @@ class _sceneB: public _baseScene
         _timer *globalTimer = new _timer();
 
         int spawnTimerDelayMs = 0;
-        int spawnTimerDelayMinimumDuration = 3000;
+        int spawnTimerDelayMinimumDuration = 2000;
         int spawnTimerDelayRange = 2500;
 
         _textureLoader *textureLoader = new _textureLoader();

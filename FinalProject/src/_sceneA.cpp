@@ -91,6 +91,7 @@ GLint _sceneA::IniGL()
     // Setup game state
     waveSize = WAVE_SIZE;
     enemiesDefeatedCount = 0;
+    totalEnemiesSpawned = 0;
     availableResources = TOWER_BASE_COST;
     totalSpentResources = 0;
 
@@ -904,7 +905,7 @@ int _sceneA::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             }
             else if(currentSceneState == SCENE_RUNNING || currentSceneState == SCENE_RECOVERY)
             {
-                if(wParam == 49 && availableResources >= 3) // 1 on keyboard
+                if(wParam == 49 && availableResources >= TOWER_BASE_COST) // 1 on keyboard
                     isPlacingTower = !isPlacingTower;
             }
             else
