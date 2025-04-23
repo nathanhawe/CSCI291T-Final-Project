@@ -13,12 +13,12 @@ void _skyBox::skyBoxInit()
 {
     glGenTextures(6,tex);
 
-    tex[0] = textures->loadImages("images/box/front.jpg");
-    tex[1] = textures->loadImages("images/box/back.jpg");
-    tex[2] = textures->loadImages("images/box/top.jpg");
-    tex[3] = textures->loadImages("images/box/bottom.jpg");
-    tex[4] = textures->loadImages("images/box/right.jpg");
-    tex[5] = textures->loadImages("images/box/left.jpg");
+    tex[0] = textures->loadImages("images/forest/front.png");
+    tex[1] = textures->loadImages("images/forest/back.png");
+    tex[2] = textures->loadImages("images/forest/top.png");
+    tex[3] = textures->loadImages("images/forest/bottom.png");
+    tex[4] = textures->loadImages("images/forest/right.png");
+    tex[5] = textures->loadImages("images/forest/left.png");
 
     xMin = yMin = 0.0;
     xMax = yMax = 1.0;
@@ -26,8 +26,8 @@ void _skyBox::skyBoxInit()
     rot.x= rot.y = rot.z = 0.0;
     pos.x= pos.y = 0.0;
     pos.z = -9;
-    boxSize.x = boxSize.z =30.0;
-    boxSize.y = 5.0;
+    boxSize.x = boxSize.z =100.0;
+    boxSize.y = 20.0;
 
 }
 

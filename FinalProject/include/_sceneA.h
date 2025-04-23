@@ -11,6 +11,7 @@
 #include<_3dmodelloader.h>
 #include<_sounds.h>
 #include<_enemyFactory.h>
+#include<_skybox.h>
 
 #define RECOVER_TIMER_MS 1000
 #define RECOVER_TIMER_MS 1000
@@ -18,10 +19,11 @@
 #define VICTORY_TIMER_MS 30000
 #define TRANSITION_TIMER_MS 5000
 
-#define MUSIC_FILE "sounds/Skariachi - Inaban _ Nabani.mp3"
+#define MUSIC_FILE "sounds/military-drums.mp3"
 #define SOUND_COLLISION_FILE "sounds/Glass Windows Breaking.mp3"
 #define SOUND_SUCCESS "sounds/Magic Chime.mp3"
 #define SOUND_FAIL "sounds/Sad Trombone Wah Wah Wah Fail Sound - Sound Effect #35.mp3"
+#define SOUND_LASER "sounds/laser.mp3"
 
 
 #define TOTAL_OBSTACLES 10
@@ -65,12 +67,17 @@ class _sceneA: public _baseScene
         void advanceEnemies();
 
         void createTowerAtPoint(int towerType, float x, float z);
+        void drawTowerAt(float x, float y, float z, float width, float height);
+        void drawGround();
+        void drawLasers();
+        void checkAndUpdateTargets();
 
         bool isPlacingTower = false;
         bool isTowerPlaceable = false;
 
         int returnToStateAfterPause;
-        GLuint img_popup, img_defeat, img_victory, img_ground;
+        GLuint img_popup, img_defeat, img_victory, ground_tex, tower_tex, roof_tex, dirt_tex;
+
 
         _sounds *snds = new _sounds();
         ISound *backgroundMusic;
@@ -90,6 +97,7 @@ class _sceneA: public _baseScene
         vec3 roadRotation;
 
         _camera *camera = new _camera();
+        _skyBox *sky = new _skyBox();
 
         // Models
         _enemyFactory *enemyFactory = new _enemyFactory();
@@ -117,6 +125,7 @@ class _sceneA: public _baseScene
             float yMax;
             float zMin;
             float zMax;
+            int targetEnemyIndex = -1;
         };
 
         tower towers[TOTAL_TOWERS];

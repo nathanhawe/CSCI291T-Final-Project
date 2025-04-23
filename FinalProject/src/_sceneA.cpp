@@ -63,13 +63,16 @@ GLint _sceneA::IniGL()
     img_defeat = textureLoader->loadImages("images/defeat.png");
     img_victory = textureLoader->loadImages("images/victory.png");
 
-    img_ground = textureLoader->loadImages("images/ground.jpg");
-
+    ground_tex = textureLoader->loadImages("images/ground.jpg");
+    tower_tex = textureLoader->loadImages("images/tower.jpg");
+    roof_tex = textureLoader->loadImages("images/roof.jpg");
+    dirt_tex = textureLoader->loadImages("images/dirt.jpg");
 
 
 
     // Start background music
     snds->initSound();
+    sky->skyBoxInit();
     backgroundMusic = snds->playMusic(MUSIC_FILE);
     backgroundMusic->setVolume(0.15f);
     return true;
@@ -135,6 +138,7 @@ GLvoid _sceneA::renderScene()
     }
 
 
+
     spawnObstacles();
 
     // reset the color buffer bit (all colors on screen) and depth bit
@@ -144,21 +148,16 @@ GLvoid _sceneA::renderScene()
     // Update camera
     camera->setup();
 
+    sky->drawSkyBox();
+
     // Setup background
     glPushMatrix();
 
         glScalef(1, 1, 1);
         glDisable(GL_LIGHTING);
 
-        glBegin(GL_POLYGON);
-            glColor3f(165, 42, 42);
+        drawGround();
 
-            glVertex3f(-2, 0, -1);
-            glVertex3f(-2, 0, 1);
-            glVertex3f(2, 0, 1);
-            glVertex3f(2, 0, -1);
-
-        glEnd();
 
         drawRoadHorizontal(-2, 0, -0.5, 0.1);
         drawRoadHorizontal(-2, 0, 0.5, 0.1);
@@ -237,86 +236,201 @@ GLvoid _sceneA::renderScene()
         glPopMatrix();
     }
 
-    // Draw towers on the map
-    glColor4f(0, 0, 255, 0.8);
     for (int i = 0; i < TOTAL_TOWERS; i++)
-    {
-        if (!towers[i].isActive) continue;
+        {
+            if (!towers[i].isActive) continue;
 
-        glBegin(GL_QUADS);
+            // Calculate tower center position
+            float posX = (towers[i].xMin + towers[i].xMax) / 2.0f;
+            float posY = towers[i].yMin; // base Y
+            float posZ = (towers[i].zMin + towers[i].zMax) / 2.0f;
+
+            // Calculate size (used for scaling)
+            float towerWidth = towers[i].xMax - towers[i].xMin;
+            float towerHeight = towers[i].yMax - towers[i].yMin;
+
+            drawTowerAt(posX, posY, posZ, towerWidth, towerHeight);
+        }
+
+    checkAndUpdateTargets();
+    drawLasers();
 
 
-            // Top
-            glVertex3f(towers[i].xMin, towers[i].yMax, towers[i].zMin);
-            glVertex3f(towers[i].xMin, towers[i].yMax, towers[i].zMax);
-            glVertex3f(towers[i].xMax, towers[i].yMax, towers[i].zMax);
-            glVertex3f(towers[i].xMax, towers[i].yMax, towers[i].zMin);
-
-            // Bottom
-            glVertex3f(towers[i].xMin, towers[i].yMin, towers[i].zMin);
-            glVertex3f(towers[i].xMin, towers[i].yMin, towers[i].zMax);
-            glVertex3f(towers[i].xMax, towers[i].yMin, towers[i].zMax);
-            glVertex3f(towers[i].xMax, towers[i].yMin, towers[i].zMin);
-
-            // Front
-            glVertex3f(towers[i].xMin, towers[i].yMax, towers[i].zMax);
-            glVertex3f(towers[i].xMin, towers[i].yMin, towers[i].zMax);
-            glVertex3f(towers[i].xMax, towers[i].yMin, towers[i].zMax);
-            glVertex3f(towers[i].xMax, towers[i].yMax, towers[i].zMax);
-
-            // Back
-            glVertex3f(towers[i].xMin, towers[i].yMax, towers[i].zMin);
-            glVertex3f(towers[i].xMin, towers[i].yMin, towers[i].zMin);
-            glVertex3f(towers[i].xMax, towers[i].yMin, towers[i].zMin);
-            glVertex3f(towers[i].xMax, towers[i].yMax, towers[i].zMin);
-
-            // Left
-            glVertex3f(towers[i].xMin, towers[i].yMax, towers[i].zMin);
-            glVertex3f(towers[i].xMin, towers[i].yMin, towers[i].zMin);
-            glVertex3f(towers[i].xMin, towers[i].yMin, towers[i].zMax);
-            glVertex3f(towers[i].xMin, towers[i].yMax, towers[i].zMax);
-
-            // Right
-            glVertex3f(towers[i].xMax, towers[i].yMax, towers[i].zMin);
-            glVertex3f(towers[i].xMax, towers[i].yMin, towers[i].zMin);
-            glVertex3f(towers[i].xMax, towers[i].yMin, towers[i].zMax);
-            glVertex3f(towers[i].xMax, towers[i].yMax, towers[i].zMax);
-
-        glEnd();
-    }
     glColor3f(1, 1, 1);
 
 }
 
 void _sceneA::drawRoadHorizontal(float xStart, float xEnd, float z, float width)
 {
-    float w = width / 2.0;
+    float w = width / 2.0f;
+
+    glBindTexture(GL_TEXTURE_2D, dirt_tex);
 
     glBegin(GL_POLYGON);
-            glColor3f(0, 0, 0);
-
-            glVertex3f(xStart, 0, z - w);
-            glVertex3f(xStart, 0, z + w);
-            glVertex3f(xEnd, 0, z + w);
-            glVertex3f(xEnd, 0, z - w);
-
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(xStart, 0, z - w);
+        glTexCoord2f(0.0f, 1.0f); glVertex3f(xStart, 0, z + w);
+        glTexCoord2f(1.0f, 1.0f); glVertex3f(xEnd, 0, z + w);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(xEnd, 0, z - w);
     glEnd();
 }
+
 
 void _sceneA::drawRoadVertical(float zStart, float zEnd, float x, float width)
 {
-    float w = width / 2.0;
+    float w = width / 2.0f;
+
+    glBindTexture(GL_TEXTURE_2D, dirt_tex);
 
     glBegin(GL_POLYGON);
-            glColor3f(0, 0, 0);
-
-            glVertex3f(x-w, 0, zStart);
-            glVertex3f(x-w, 0, zEnd);
-            glVertex3f(x+w, 0, zEnd);
-            glVertex3f(x+w, 0, zStart);
-
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(x - w, 0, zStart);
+        glTexCoord2f(0.0f, 1.0f); glVertex3f(x - w, 0, zEnd);
+        glTexCoord2f(1.0f, 1.0f); glVertex3f(x + w, 0, zEnd);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(x + w, 0, zStart);
     glEnd();
 }
+
+
+
+void _sceneA::drawTowerAt(float x, float y, float z, float width, float height)
+{
+    glPushMatrix();
+
+    glTranslatef(x, y, z);
+    glScalef(width / 2.5f, height / 20.0f, width / 2.5f); // Scale
+
+    glBindTexture(GL_TEXTURE_2D, tower_tex);
+
+    glBegin(GL_QUADS);
+    // Front
+    glNormal3f(0, 0, 1);
+    glTexCoord2f(0, 1); glVertex3f(-1.25f, 0.0f, 1.25f);
+    glTexCoord2f(0, 0); glVertex3f(-1.25f, 20.0f, 1.25f);
+    glTexCoord2f(1, 0); glVertex3f(1.25f, 20.0f, 1.25f);
+    glTexCoord2f(1, 1); glVertex3f(1.25f, 0.0f, 1.25f);
+    // Back
+    glNormal3f(0, 0, -1);
+    glTexCoord2f(0, 1); glVertex3f(-1.25f, 0.0f, -1.25f);
+    glTexCoord2f(0, 0); glVertex3f(-1.25f, 20.0f, -1.25f);
+    glTexCoord2f(1, 0); glVertex3f(1.25f, 20.0f, -1.25f);
+    glTexCoord2f(1, 1); glVertex3f(1.25f, 0.0f, -1.25f);
+    // Right
+    glNormal3f(1, 0, 0);
+    glTexCoord2f(0, 1); glVertex3f(1.25f, 0.0f, -1.25f);
+    glTexCoord2f(0, 0); glVertex3f(1.25f, 20.0f, -1.25f);
+    glTexCoord2f(1, 0); glVertex3f(1.25f, 20.0f, 1.25f);
+    glTexCoord2f(1, 1); glVertex3f(1.25f, 0.0f, 1.25f);
+    // Left
+    glNormal3f(-1, 0, 0);
+    glTexCoord2f(0, 1); glVertex3f(-1.25f, 0.0f, -1.25f);
+    glTexCoord2f(0, 0); glVertex3f(-1.25f, 20.0f, -1.25f);
+    glTexCoord2f(1, 0); glVertex3f(-1.25f, 20.0f, 1.25f);
+    glTexCoord2f(1, 1); glVertex3f(-1.25f, 0.0f, 1.25f);
+    glEnd();
+
+    // Draw roof
+    glBindTexture(GL_TEXTURE_2D, roof_tex);
+    glBegin(GL_TRIANGLES);
+    float apexY = 25.0f;
+    float apexX = 0.0f, apexZ = 0.0f;
+
+    glNormal3f(0, 0.5f, 0.5f);
+    glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.25f, 20.0f, 1.25f);
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(1.25f, 20.0f, 1.25f);
+
+    glNormal3f(0.5f, 0.5f, 0.0f);
+    glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(1.25f, 20.0f, 1.25f);
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(1.25f, 20.0f, -1.25f);
+
+    glNormal3f(0, 0.5f, -0.5f);
+    glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(1.25f, 20.0f, -1.25f);
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.25f, 20.0f, -1.25f);
+
+    glNormal3f(-0.5f, 0.5f, 0.0f);
+    glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.25f, 20.0f, -1.25f);
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.25f, 20.0f, 1.25f);
+    glEnd();
+
+    glPopMatrix();
+}
+
+void _sceneA::drawGround()
+{
+    //glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, ground_tex);
+
+    glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(-2, 0, -1);
+        glTexCoord2f(0.0f, 1.0f); glVertex3f(-2, 0,  1);
+        glTexCoord2f(1.0f, 1.0f); glVertex3f( 2, 0,  1);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f( 2, 0, -1);
+    glEnd();
+
+    //glDisable(GL_TEXTURE_2D);
+}
+
+void _sceneA::drawLasers()
+{
+    glDisable(GL_LIGHTING);
+    glLineWidth(2.5f);
+    glColor3f(1.0f, 0.0f, 0.0f); // Red laser
+
+    glBegin(GL_LINES);
+    for (int i = 0; i < TOTAL_TOWERS; i++) {
+        int idx = towers[i].targetEnemyIndex;
+        if (idx == -1 || !towers[i].isActive || obstacles[idx].model->pathStep < 0)
+            continue;
+
+        float tx = (towers[i].xMin + towers[i].xMax) / 2.0f;
+        float ty = towers[i].yMax;
+        float tz = (towers[i].zMin + towers[i].zMax) / 2.0f;
+
+        float ex = obstacles[idx].model->pos.x;
+        float ey = obstacles[idx].model->pos.y + 0.1f;
+        float ez = obstacles[idx].model->pos.z;
+
+        glVertex3f(tx, ty, tz);  // From tower
+        glVertex3f(ex, ey, ez);  // To enemy
+    }
+    glEnd();
+
+    glEnable(GL_LIGHTING);
+}
+
+void _sceneA::checkAndUpdateTargets()
+{
+    for (int i = 0; i < TOTAL_TOWERS; i++) {
+        if (!towers[i].isActive) continue;
+
+        float tx = (towers[i].xMin + towers[i].xMax) / 2.0f;
+        float ty = (towers[i].yMin + towers[i].yMax) / 2.0f;
+        float tz = (towers[i].zMin + towers[i].zMax) / 2.0f;
+
+        float closestDist = 9999.0f;
+        int closestEnemy = -1;
+
+        for (int j = 0; j < TOTAL_OBSTACLES; j++) {
+            if (obstacles[j].model->pathStep < 0) continue;
+
+            float ex = obstacles[j].model->pos.x;
+            float ez = obstacles[j].model->pos.z;
+
+            float distSq = (ex - tx) * (ex - tx) + (ez - tz) * (ez - tz);
+            float range = 0.25f;
+
+            if (distSq <= range * range && distSq < closestDist) {
+                closestDist = distSq;
+                closestEnemy = j;
+            }
+        }
+
+        towers[i].targetEnemyIndex = closestEnemy;
+    }
+}
+
 
 void _sceneA::drawPlacementCircle(float towerSize, float towerRange)
 {
