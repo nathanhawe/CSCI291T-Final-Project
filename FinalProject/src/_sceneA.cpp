@@ -72,6 +72,12 @@ GLint _sceneA::IniGL()
     roof_tex = textureLoader->loadImages("images/roof.jpg");
     dirt_tex = textureLoader->loadImages("images/dirt.jpg");
 
+    // Load overlay images
+    overlay1_notReady = textureLoader->loadImages("images/overlay/1-not_ready.png");
+    overlay1_ready = textureLoader->loadImages("images/overlay/1-ready.png");
+    overlay1_selected = textureLoader->loadImages("images/overlay/1-selected.png");
+    overlay2_disabled = textureLoader->loadImages("images/overlay/2-disabled.png");
+    overlay3_disabled = textureLoader->loadImages("images/overlay/3-disabled.png");
 
 
     // Start background music
@@ -85,6 +91,8 @@ GLint _sceneA::IniGL()
     // Setup game state
     waveSize = WAVE_SIZE;
     enemiesDefeatedCount = 0;
+    availableResources = TOWER_BASE_COST;
+    totalSpentResources = 0;
 
     return true;
 }
@@ -148,8 +156,6 @@ GLvoid _sceneA::renderScene()
             break;
     }
 
-
-
     spawnObstacles();
 
     // reset the color buffer bit (all colors on screen) and depth bit
@@ -167,6 +173,7 @@ GLvoid _sceneA::renderScene()
         glScalef(1, 1, 1);
         glDisable(GL_LIGHTING);
 
+        drawOverlay();
         drawGround();
 
 
@@ -271,6 +278,48 @@ GLvoid _sceneA::renderScene()
     glColor3f(1, 1, 1);
 
 }
+
+void _sceneA::drawOverlay()
+{
+
+    if(isPlacingTower)
+    {
+        glBindTexture(GL_TEXTURE_2D, overlay1_selected);
+    }
+    else if (availableResources >= TOWER_BASE_COST)
+    {
+        glBindTexture(GL_TEXTURE_2D, overlay1_ready);
+    }
+    else
+    {
+        glBindTexture(GL_TEXTURE_2D, overlay1_notReady);
+    }
+
+    glBegin(GL_POLYGON);
+        glTexCoord2f(0, 0); glVertex3f(-0.35, 1.00, -0.5);
+        glTexCoord2f(0, 1); glVertex3f(-0.35, 0.95, 0);
+        glTexCoord2f(1, 1); glVertex3f(-0.2, 0.95, 0);
+        glTexCoord2f(1, 0); glVertex3f(-0.2, 1.00, -0.5);
+    glEnd();
+
+    glBindTexture(GL_TEXTURE_2D, overlay2_disabled);
+    glBegin(GL_POLYGON);
+        glTexCoord2f(0, 0); glVertex3f(-0.075, 1.00, -0.5);
+        glTexCoord2f(0, 1); glVertex3f(-0.075, 0.95, 0);
+        glTexCoord2f(1, 1); glVertex3f(0.075, 0.95, 0);
+        glTexCoord2f(1, 0); glVertex3f(0.075, 1.00, -0.5);
+    glEnd();
+
+    glBindTexture(GL_TEXTURE_2D, overlay3_disabled);
+    glBegin(GL_POLYGON);
+        glTexCoord2f(0, 0); glVertex3f(0.2, 1.00, -0.5);
+        glTexCoord2f(0, 1); glVertex3f(0.2, 0.95, 0);
+        glTexCoord2f(1, 1); glVertex3f(0.35, 0.95, 0);
+        glTexCoord2f(1, 0); glVertex3f(0.35, 1.00, -0.5);
+    glEnd();
+
+}
+
 
 void _sceneA::drawRoadHorizontal(float xStart, float xEnd, float z, float width)
 {
@@ -473,6 +522,7 @@ void _sceneA::attackTargets()
         if (obstacles[idx].model->hitCount >= obstacles[idx].model->maxHits)
         {
             enemiesDefeatedCount++;
+            availableResources++;
             obstacles[idx].model->pathStep = -1;
         }
 
@@ -645,7 +695,7 @@ void _sceneA::advanceEnemies()
 
 void _sceneA::createTowerAtPoint(int towerType, float x, float z)
 {
-    if(!isPlacingTower || !isTowerPlaceable) return;
+    if(!isPlacingTower || !isTowerPlaceable || availableResources < TOWER_BASE_COST) return;
 
     //find the first available tower slot
     for (int i = 0; i < TOTAL_TOWERS; i++)
@@ -665,6 +715,12 @@ void _sceneA::createTowerAtPoint(int towerType, float x, float z)
         towers[i].targetEnemyIndex = -1;
         towers[i].lastAttackTicks = globalTimer->getTicks();
         towers[i].hasFirstAttack = false;
+
+        totalSpentResources += TOWER_BASE_COST;
+        availableResources -= TOWER_BASE_COST;
+        isPlacingTower = false;
+
+        debug();
 
         return;
     }
@@ -792,6 +848,8 @@ void _sceneA::reset()
     enemiesDefeatedCount = 0;
     totalEnemiesSpawned = 0;
     playerHitCount = 0;
+    availableResources = TOWER_BASE_COST;
+    totalSpentResources = 0;
 
     currentSceneState = SCENE_START;
     victoryTimer->reset();
@@ -846,7 +904,7 @@ int _sceneA::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             }
             else if(currentSceneState == SCENE_RUNNING || currentSceneState == SCENE_RECOVERY)
             {
-                if(wParam == 49) // 1 on keyboard
+                if(wParam == 49 && availableResources >= 3) // 1 on keyboard
                     isPlacingTower = !isPlacingTower;
             }
             else

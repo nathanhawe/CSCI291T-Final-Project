@@ -35,6 +35,7 @@
 
 
 #define TOTAL_TOWERS 10
+#define TOWER_BASE_COST 4
 class _sceneA: public _baseScene
 {
     public:
@@ -77,11 +78,16 @@ class _sceneA: public _baseScene
         void checkAndUpdateTargets();
         void attackTargets();
 
+        void drawOverlay();
+
         bool isPlacingTower = false;
         bool isTowerPlaceable = false;
 
         int returnToStateAfterPause;
         GLuint img_popup, img_defeat, img_victory, ground_tex, tower_tex, roof_tex, dirt_tex;
+        GLuint overlay1_notReady, overlay1_ready, overlay1_selected;
+        GLuint overlay2_disabled;
+        GLuint overlay3_disabled;
 
 
         _sounds *snds = new _sounds();
