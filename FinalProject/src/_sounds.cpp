@@ -26,10 +26,21 @@ void _sounds::resumeMusic(ISound* snd)
     snd->setIsPaused(false);
 }
 
+ISoundSource* _sounds::loadSoundSource(char* filename)
+{
+    return eng->addSoundSourceFromFile(filename);
+}
+
 void _sounds::playSound(char* filename)
 {
     eng->play2D(filename, false, false);
 }
+
+void _sounds::playSoundSource(ISoundSource* soundSource)
+{
+    eng->play2D(soundSource);
+}
+
 
 int _sounds::initSound()
 {
@@ -40,3 +51,5 @@ int _sounds::initSound()
     }
     return 1;
 }
+
+

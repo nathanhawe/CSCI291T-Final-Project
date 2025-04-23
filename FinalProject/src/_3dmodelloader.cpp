@@ -15,6 +15,8 @@ _3dmodelloader::_3dmodelloader()
     scale.z = 1;
 
     pathStep = -1;
+    hitCount = 0;
+    maxHits = 4;
 
 }
 

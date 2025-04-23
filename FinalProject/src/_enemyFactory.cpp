@@ -25,6 +25,9 @@ void _enemyFactory::GenerateVegeta(_3dmodelloader** mdl, _3dmodelloader** weapon
 
     (*mdl)->FaceRight();
 
+    (*mdl)->maxHits = 3;
+    (*mdl)->hitCount = 0;
+
     // Action frames
     (*mdl)->SetActionFrameRange((*mdl)->STAND, 0, 39);
     (*mdl)->SetActionFrameRange((*mdl)->RUN, 40, 45);
