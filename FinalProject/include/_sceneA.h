@@ -13,11 +13,15 @@
 #include<_enemyFactory.h>
 #include<_skybox.h>
 
+#define WAVE_SIZE 10
+
 #define RECOVER_TIMER_MS 1000
 #define RECOVER_TIMER_MS 1000
 #define IMMUNITY_TIMER_MS 2000
 #define VICTORY_TIMER_MS 30000
 #define TRANSITION_TIMER_MS 5000
+#define TOWER_FIRE_DELAY 1500
+#define LASER_DURATION 300
 
 #define MUSIC_FILE "sounds/military-drums.mp3"
 #define SOUND_COLLISION_FILE "sounds/Glass Windows Breaking.mp3"
@@ -71,6 +75,7 @@ class _sceneA: public _baseScene
         void drawGround();
         void drawLasers();
         void checkAndUpdateTargets();
+        void attackTargets();
 
         bool isPlacingTower = false;
         bool isTowerPlaceable = false;
@@ -81,6 +86,7 @@ class _sceneA: public _baseScene
 
         _sounds *snds = new _sounds();
         ISound *backgroundMusic;
+        ISoundSource *laserSoundSource;
 
         _inputs *myInputs = new _inputs();
 
@@ -88,6 +94,7 @@ class _sceneA: public _baseScene
         _timer *immunityTimer = new _timer();
         _timer *spawnTimer = new _timer();
         _timer *transitionDelayTimer = new _timer();
+        _timer *globalTimer = new _timer();
 
         int spawnTimerDelayMs = 0;
         int spawnTimerDelayMinimumDuration = 3000;
@@ -126,6 +133,8 @@ class _sceneA: public _baseScene
             float zMin;
             float zMax;
             int targetEnemyIndex = -1;
+            clock_t lastAttackTicks;
+            bool hasFirstAttack;
         };
 
         tower towers[TOTAL_TOWERS];

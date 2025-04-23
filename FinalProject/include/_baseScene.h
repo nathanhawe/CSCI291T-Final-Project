@@ -44,6 +44,11 @@ class _baseScene
             //cout << "Mouse Mappings (x,y,z): " << mouseX << ", " << mouseY << ", " << mouseZ << endl;
         }
 
+        void debug()
+        {
+            cout << "Wave Size: " << waveSize << ", Spawned: " << totalEnemiesSpawned << ", DMG: " << playerHitCount << ", Score: " << enemiesDefeatedCount << endl;
+        }
+
 
         virtual GLint IniGL() = 0;
         virtual GLvoid renderScene() = 0;
@@ -57,6 +62,10 @@ class _baseScene
     protected:
         vec2 dim;
         int playerHitCount = 0;
+        int enemiesDefeatedCount = 0;
+        int waveSize;
+        int totalEnemiesSpawned;
+
 
     private:
 

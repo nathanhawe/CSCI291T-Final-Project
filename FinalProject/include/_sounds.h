@@ -14,9 +14,11 @@ class _sounds
 
         ISoundEngine *eng = createIrrKlangDevice();
         ISound* playMusic(char* filename);
+        ISoundSource* loadSoundSource(char* filename);
         void pauseMusic(ISound *snd);
         void resumeMusic(ISound *snd);
         void playSound(char* filename);
+        void playSoundSource(ISoundSource* soundSource);
         int initSound();
 
     protected:

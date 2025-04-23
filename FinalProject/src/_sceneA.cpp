@@ -17,9 +17,13 @@ _sceneA::~_sceneA()
     delete immunityTimer;
     delete spawnTimer;
     delete transitionDelayTimer;
+    delete globalTimer;
     delete textureLoader;
     delete camera;
     delete enemyFactory;
+
+    delete backgroundMusic;
+    delete laserSoundSource;
 
     for (int i = 0; i < TOTAL_OBSTACLES; i++)
     {
@@ -75,6 +79,13 @@ GLint _sceneA::IniGL()
     sky->skyBoxInit();
     backgroundMusic = snds->playMusic(MUSIC_FILE);
     backgroundMusic->setVolume(0.15f);
+    laserSoundSource = snds->loadSoundSource(SOUND_LASER);
+    laserSoundSource->setDefaultVolume(0.30f);
+
+    // Setup game state
+    waveSize = WAVE_SIZE;
+    enemiesDefeatedCount = 0;
+
     return true;
 }
 
@@ -172,7 +183,7 @@ GLvoid _sceneA::renderScene()
 
 
         // Advance enemies
-        if(currentSceneState == SCENE_RUNNING || currentSceneState == SCENE_RECOVERY)
+        if(currentSceneState == SCENE_RUNNING)
         {
             advanceEnemies();
             drawPlacementCircle(0.05, 0.18);
@@ -253,6 +264,7 @@ GLvoid _sceneA::renderScene()
         }
 
     checkAndUpdateTargets();
+    attackTargets();
     drawLasers();
 
 
@@ -377,11 +389,15 @@ void _sceneA::drawLasers()
     glDisable(GL_LIGHTING);
     glLineWidth(2.5f);
     glColor3f(1.0f, 0.0f, 0.0f); // Red laser
-
     glBegin(GL_LINES);
     for (int i = 0; i < TOTAL_TOWERS; i++) {
         int idx = towers[i].targetEnemyIndex;
-        if (idx == -1 || !towers[i].isActive || obstacles[idx].model->pathStep < 0)
+        if (
+            idx == -1
+            || !towers[i].isActive
+            || obstacles[idx].model->pathStep < 0
+            || !towers[i].hasFirstAttack
+            || (towers[i].lastAttackTicks + LASER_DURATION) > globalTimer->getTicks())
             continue;
 
         float tx = (towers[i].xMin + towers[i].xMax) / 2.0f;
@@ -389,7 +405,7 @@ void _sceneA::drawLasers()
         float tz = (towers[i].zMin + towers[i].zMax) / 2.0f;
 
         float ex = obstacles[idx].model->pos.x;
-        float ey = obstacles[idx].model->pos.y + 0.1f;
+        float ey = obstacles[idx].model->pos.y;
         float ez = obstacles[idx].model->pos.z;
 
         glVertex3f(tx, ty, tz);  // From tower
@@ -428,6 +444,42 @@ void _sceneA::checkAndUpdateTargets()
         }
 
         towers[i].targetEnemyIndex = closestEnemy;
+    }
+}
+
+void _sceneA::attackTargets()
+{
+    clock_t nextFireTicks;
+    int idx;
+    for (int i = 0; i < TOTAL_TOWERS; i++)
+    {
+        idx = towers[i].targetEnemyIndex;
+        nextFireTicks = towers[i].lastAttackTicks + TOWER_FIRE_DELAY;
+        if (
+            idx == -1
+            || !towers[i].isActive
+            || obstacles[idx].model->pathStep < 0
+            || nextFireTicks > globalTimer->getTicks())
+            continue;
+
+        towers[i].lastAttackTicks = globalTimer->getTicks();
+        towers[i].hasFirstAttack = true;
+        snds->playSoundSource(laserSoundSource);
+
+        cout << "TOWER " << i << " --> " << idx;
+
+        // Add damage to enemy
+        obstacles[idx].model->hitCount++;
+        if (obstacles[idx].model->hitCount >= obstacles[idx].model->maxHits)
+        {
+            enemiesDefeatedCount++;
+            obstacles[idx].model->pathStep = -1;
+        }
+
+        cout << " " << obstacles[idx].model->hitCount << "/" << obstacles[idx].model->maxHits << "     " << enemiesDefeatedCount << endl;
+        debug();
+
+
     }
 }
 
@@ -542,7 +594,12 @@ void _sceneA::advanceEnemies()
                     obstacles[i].model->pos.x += OBSTACLE_SPEED;
 
                     if(obstacles[i].model->pos.x >= 2)
+                    {
                         obstacles[i].model->pathStep = -1;
+
+                        playerHitCount++;
+                        debug();
+                    }
 
                     break;
             }
@@ -574,7 +631,11 @@ void _sceneA::advanceEnemies()
                     obstacles[i].model->pos.x += OBSTACLE_SPEED;
 
                     if(obstacles[i].model->pos.x >= 2)
+                    {
                         obstacles[i].model->pathStep = -1;
+                        playerHitCount++;
+                        debug();
+                    }
 
                     break;
             }
@@ -601,6 +662,9 @@ void _sceneA::createTowerAtPoint(int towerType, float x, float z)
         towers[i].yMax = 0.15;
         towers[i].zMin = z - 0.05;
         towers[i].zMax = z + 0.05;
+        towers[i].targetEnemyIndex = -1;
+        towers[i].lastAttackTicks = globalTimer->getTicks();
+        towers[i].hasFirstAttack = false;
 
         return;
     }
@@ -644,35 +708,11 @@ void _sceneA::transitionSceneState()
         newState = SCENE_FAILURE;
         transitionDelayTimer->reset();
     }
-    /*else if(victoryTimer->getTicks() >= VICTORY_TIMER_MS)
+    else if((enemiesDefeatedCount + playerHitCount) >= WAVE_SIZE)
     {
         snds->playSound(SOUND_SUCCESS);
         newState = SCENE_VICTORY;
         transitionDelayTimer->reset();
-    }*/
-    else if(
-        currentSceneState == SCENE_COLLISION &&
-        immunityTimer->getTicks() < RECOVER_TIMER_MS)
-    {
-        newState = SCENE_COLLISION;
-    }
-    else if (
-        (
-            currentSceneState == SCENE_COLLISION ||
-            currentSceneState == SCENE_RECOVERY)
-        && immunityTimer->getTicks() < IMMUNITY_TIMER_MS)
-    {
-        newState = SCENE_RECOVERY;
-    }
-    else if(
-        currentSceneState == SCENE_RUNNING
-        && hasCollided())
-    {
-        newState = SCENE_COLLISION;
-        playerHitCount++;
-        immunityTimer->reset();
-        snds->playSound(SOUND_COLLISION_FILE);
-        cout << "collision with: " << collidedObstacle->debugId << endl;
     }
     else newState = SCENE_RUNNING;
 
@@ -681,8 +721,8 @@ void _sceneA::transitionSceneState()
 
 void _sceneA::spawnObstacles()
 {
-    // Check if we're within timer range
-    if(spawnTimer->getTicks() >= spawnTimerDelayMs)
+    // Check if we're within timer range and haven't maxed out level spawns
+    if(totalEnemiesSpawned < WAVE_SIZE && spawnTimer->getTicks() >= spawnTimerDelayMs)
     {
         // A new obstacle can be spawned
         int spawnLocation = (rand() % 100);
@@ -711,6 +751,9 @@ void _sceneA::spawnObstacles()
             }
 
             obj1->pathStep = 0;
+            obj1->hitCount = 0;
+
+            totalEnemiesSpawned++;
 
             cout << "Obstacle: " << obj1->debugId << " at spawn location " << obj1->path << endl;
 
@@ -745,19 +788,22 @@ bool _sceneA::hasCollided()
 
 void _sceneA::reset()
 {
+    waveSize = WAVE_SIZE;
+    enemiesDefeatedCount = 0;
+    totalEnemiesSpawned = 0;
     playerHitCount = 0;
+
     currentSceneState = SCENE_START;
     victoryTimer->reset();
 
-    collidedObstacle = nullptr;
-    collidedObstacleW = nullptr;
-
     for (int i = 0; i < TOTAL_OBSTACLES; i++)
     {
-        obstacles[i].model->pos.z = 2;
-        obstacles[i].weapon->pos.z = 2;
-        obstacles[i].model->actionTrigger == obstacles[i].model->RUN;
-        obstacles[i].weapon->actionTrigger == obstacles[i].weapon->RUN;
+        obstacles[i].model->pathStep = -1;
+    }
+
+    for (int i = 0; i < TOTAL_TOWERS; i++)
+    {
+        towers[i].isActive = false;
     }
 }
 
@@ -778,6 +824,7 @@ int _sceneA::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     immunityTimer->resumeTime();
                     spawnTimer->resumeTime();
                     transitionDelayTimer->resumeTime();
+                    globalTimer->resumeTime();
                     currentSceneState = returnToStateAfterPause;
                 }
                 else
@@ -788,6 +835,7 @@ int _sceneA::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     immunityTimer->pauseTime();
                     spawnTimer->pauseTime();
                     transitionDelayTimer->pauseTime();
+                    globalTimer->pauseTime();
                 }
 
             }

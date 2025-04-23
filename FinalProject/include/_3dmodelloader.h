@@ -159,6 +159,10 @@ class _3dmodelloader
           int path;
           int pathStep;
 
+          // For tracking health
+          int maxHits;
+          int hitCount;
+
 	private:
 
 
