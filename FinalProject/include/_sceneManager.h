@@ -4,6 +4,7 @@
 #include<_common.h>
 #include<_sceneLanding.h>
 #include<_sceneA.h>
+#include<_sceneB.h>
 
 class _sceneManager
 {
@@ -42,6 +43,7 @@ class _sceneManager
         // Available scenes
         _sceneLanding *sceneLanding;
         _sceneA *sceneA;
+        _sceneB *sceneB;
 
 
 

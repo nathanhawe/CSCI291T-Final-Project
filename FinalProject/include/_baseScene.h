@@ -46,8 +46,8 @@ class _baseScene
 
         void debug()
         {
-            cout << "Wave Size: " << waveSize << ", Spawned: " << totalEnemiesSpawned << ", DMG: " << playerHitCount << ", Score: " << enemiesDefeatedCount;
-            cout << " Resources Available/Spent: " << availableResources << "/" << totalSpentResources << endl;
+            //cout << "Wave Size: " << waveSize << ", Spawned: " << totalEnemiesSpawned << ", DMG: " << playerHitCount << ", Score: " << enemiesDefeatedCount;
+            //cout << " Resources Available/Spent: " << availableResources << "/" << totalSpentResources << endl;
         }
 
 

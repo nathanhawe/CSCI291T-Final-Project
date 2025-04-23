@@ -5,6 +5,7 @@ _sceneManager::_sceneManager()
     //ctor
     sceneLanding = new _sceneLanding();
     sceneA = new _sceneA();
+    sceneB = new _sceneB();
     activeScene = sceneLanding;
 
 }
@@ -14,6 +15,7 @@ _sceneManager::~_sceneManager()
     //dtor
     delete sceneLanding;
     delete sceneA;
+    delete sceneB;
 }
 
 GLint _sceneManager::init()
@@ -66,7 +68,7 @@ void _sceneManager::switchActiveScene()
             cout << "Manager: Switched to Scene A" << endl;
 
         }
-        /*else if (activeScene == sceneA)
+        else if (activeScene == sceneA)
         {
             if(!hasLoadedGameScene[1])
             {
@@ -79,7 +81,7 @@ void _sceneManager::switchActiveScene()
             activeScene->resizeWindow(dimension.x, dimension.y);
             cout << "Manager: Switched to Scene B" << endl;
         }
-        else if (activeScene == sceneB)
+        /*else if (activeScene == sceneB)
         {
             if(!hasLoadedGameScene[2])
             {

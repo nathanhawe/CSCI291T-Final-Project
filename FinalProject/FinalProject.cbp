@@ -58,6 +58,7 @@
 		<Unit filename="include/_model.h" />
 		<Unit filename="include/_parallax.h" />
 		<Unit filename="include/_sceneA.h" />
+		<Unit filename="include/_sceneB.h" />
 		<Unit filename="include/_sceneLanding.h" />
 		<Unit filename="include/_sceneManager.h" />
 		<Unit filename="include/_skybox.h" />
@@ -74,6 +75,7 @@
 		<Unit filename="src/_model.cpp" />
 		<Unit filename="src/_parallax.cpp" />
 		<Unit filename="src/_sceneA.cpp" />
+		<Unit filename="src/_sceneB.cpp" />
 		<Unit filename="src/_sceneLanding.cpp" />
 		<Unit filename="src/_sceneManager.cpp" />
 		<Unit filename="src/_skybox.cpp" />

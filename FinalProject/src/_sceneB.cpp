@@ -1,13 +1,13 @@
-#include "_sceneA.h"
+#include "_sceneB.h"
 
 
-_sceneA::_sceneA()
+_sceneB::_sceneB()
 {
     //ctor
 
 }
 
-_sceneA::~_sceneA()
+_sceneB::~_sceneB()
 {
 
     //dtor
@@ -33,7 +33,7 @@ _sceneA::~_sceneA()
 }
 
 
-GLint _sceneA::IniGL()
+GLint _sceneB::IniGL()
 {
     glClearColor(0.0,0.0,1.0,1.0);
     glClearDepth(1.0);
@@ -76,7 +76,9 @@ GLint _sceneA::IniGL()
     overlay1_notReady = textureLoader->loadImages("images/overlay/1-not_ready.png");
     overlay1_ready = textureLoader->loadImages("images/overlay/1-ready.png");
     overlay1_selected = textureLoader->loadImages("images/overlay/1-selected.png");
-    overlay2_disabled = textureLoader->loadImages("images/overlay/2-disabled.png");
+    overlay2_notReady = textureLoader->loadImages("images/overlay/2-not_ready.png");
+    overlay2_ready = textureLoader->loadImages("images/overlay/2-ready.png");
+    overlay2_selected = textureLoader->loadImages("images/overlay/2-selected.png");
     overlay3_disabled = textureLoader->loadImages("images/overlay/3-disabled.png");
 
 
@@ -90,16 +92,21 @@ GLint _sceneA::IniGL()
 
     // Setup game state
     waveSize = WAVE_SIZE;
-    enemiesDefeatedCount = 0;
     totalEnemiesSpawned = 0;
-    availableResources = TOWER_BASE_COST;
-    totalSpentResources = 0;
+    enemiesDefeatedCount = 0;
+    availableResources = TOWER_BASE_COST + (2 * TOWER_BOMB_COST);
+    totalSpentResources = -2 * TOWER_BOMB_COST;
+
+    // Load demo bombs
+    isTowerPlaceable = true;
+    isPlacingTower = true; createTowerAtPoint(1, -1, 0);
+    isPlacingTower = true; createTowerAtPoint(1, -1, 0.15);
 
     return true;
 }
 
 
-GLvoid _sceneA::renderScene()
+GLvoid _sceneB::renderScene()
 {
     int prevSceneState = currentSceneState;
 
@@ -178,14 +185,13 @@ GLvoid _sceneA::renderScene()
         drawGround();
 
 
-        drawRoadHorizontal(-2, 0, -0.5, 0.1);
-        drawRoadHorizontal(-2, 0, 0.5, 0.1);
+        drawRoadHorizontal(-2, -1, 0, 0.1);
+        drawRoadHorizontal(1, 2, 0, 0.1);
+        drawRoadHorizontal(-1, 1, 0.5, 0.1);
 
-        drawRoadVertical(-0.55, -0.10, 0, 0.1);
-        drawRoadVertical(0.55, 0.10, 0, 0.1);
-
-        drawRoadHorizontal(0, 2, -0.15, 0.1);
-        drawRoadHorizontal(0, 2, 0.15, 0.1);
+        drawRoadVertical(-1, 0.55, -1, 0.1);
+        drawRoadVertical(-1, 0.55, 1, 0.1);
+        drawRoadVertical(0.5, 1, 0, 0.1);
 
         glColor3f(1, 1, 1);
 
@@ -259,16 +265,32 @@ GLvoid _sceneA::renderScene()
         {
             if (!towers[i].isActive) continue;
 
-            // Calculate tower center position
-            float posX = (towers[i].xMin + towers[i].xMax) / 2.0f;
-            float posY = towers[i].yMin; // base Y
-            float posZ = (towers[i].zMin + towers[i].zMax) / 2.0f;
+            if (towers[i].type == 1)
+            {
+                // Calculate tower center position
+                float posX = (towers[i].xMin + towers[i].xMax) / 2.0f;
+                float posY = towers[i].yMin; // base Y
+                float posZ = (towers[i].zMin + towers[i].zMax) / 2.0f;
 
-            // Calculate size (used for scaling)
-            float towerWidth = towers[i].xMax - towers[i].xMin;
-            float towerHeight = towers[i].yMax - towers[i].yMin;
+                // Calculate size (used for scaling)
+                float towerWidth = towers[i].xMax - towers[i].xMin;
+                float towerHeight = towers[i].yMax - towers[i].yMin;
 
-            drawTowerAt(posX, posY, posZ, towerWidth, towerHeight);
+                drawBombAt(posX, posY, posZ, towerWidth, towerHeight);
+            }
+            else
+            {
+                // Calculate tower center position
+                float posX = (towers[i].xMin + towers[i].xMax) / 2.0f;
+                float posY = towers[i].yMin; // base Y
+                float posZ = (towers[i].zMin + towers[i].zMax) / 2.0f;
+
+                // Calculate size (used for scaling)
+                float towerWidth = towers[i].xMax - towers[i].xMin;
+                float towerHeight = towers[i].yMax - towers[i].yMin;
+
+                drawTowerAt(posX, posY, posZ, towerWidth, towerHeight);
+            }
         }
 
     checkAndUpdateTargets();
@@ -280,10 +302,10 @@ GLvoid _sceneA::renderScene()
 
 }
 
-void _sceneA::drawOverlay()
+void _sceneB::drawOverlay()
 {
 
-    if(isPlacingTower)
+    if(isPlacingTower && placingTowerType == 0)
     {
         glBindTexture(GL_TEXTURE_2D, overlay1_selected);
     }
@@ -303,7 +325,18 @@ void _sceneA::drawOverlay()
         glTexCoord2f(1, 0); glVertex3f(-0.2, 1.00, -0.5);
     glEnd();
 
-    glBindTexture(GL_TEXTURE_2D, overlay2_disabled);
+    if(isPlacingTower && placingTowerType == 1)
+    {
+        glBindTexture(GL_TEXTURE_2D, overlay2_selected);
+    }
+    else if (availableResources >= TOWER_BOMB_COST)
+    {
+        glBindTexture(GL_TEXTURE_2D, overlay2_ready);
+    }
+    else
+    {
+        glBindTexture(GL_TEXTURE_2D, overlay2_notReady);
+    }
     glBegin(GL_POLYGON);
         glTexCoord2f(0, 0); glVertex3f(-0.075, 1.00, -0.5);
         glTexCoord2f(0, 1); glVertex3f(-0.075, 0.95, 0);
@@ -322,7 +355,7 @@ void _sceneA::drawOverlay()
 }
 
 
-void _sceneA::drawRoadHorizontal(float xStart, float xEnd, float z, float width)
+void _sceneB::drawRoadHorizontal(float xStart, float xEnd, float z, float width)
 {
     float w = width / 2.0f;
 
@@ -337,7 +370,7 @@ void _sceneA::drawRoadHorizontal(float xStart, float xEnd, float z, float width)
 }
 
 
-void _sceneA::drawRoadVertical(float zStart, float zEnd, float x, float width)
+void _sceneB::drawRoadVertical(float zStart, float zEnd, float x, float width)
 {
     float w = width / 2.0f;
 
@@ -353,7 +386,7 @@ void _sceneA::drawRoadVertical(float zStart, float zEnd, float x, float width)
 
 
 
-void _sceneA::drawTowerAt(float x, float y, float z, float width, float height)
+void _sceneB::drawTowerAt(float x, float y, float z, float width, float height)
 {
     glPushMatrix();
 
@@ -419,7 +452,73 @@ void _sceneA::drawTowerAt(float x, float y, float z, float width, float height)
     glPopMatrix();
 }
 
-void _sceneA::drawGround()
+void _sceneB::drawBombAt(float x, float y, float z, float width, float height)
+{
+    glPushMatrix();
+
+    glTranslatef(x, y, z);
+    glScalef(width / 2.5f, height / 20.0f, width / 2.5f); // Scale
+
+    glBindTexture(GL_TEXTURE_2D, tower_tex);
+
+    glBegin(GL_QUADS);
+    // Front
+    glNormal3f(0, 0, 1);
+    glTexCoord2f(0, 1); glVertex3f(-1.25f, 0.0f, 1.25f);
+    glTexCoord2f(0, 0); glVertex3f(-1.25f, 20.0f, 1.25f);
+    glTexCoord2f(1, 0); glVertex3f(1.25f, 20.0f, 1.25f);
+    glTexCoord2f(1, 1); glVertex3f(1.25f, 0.0f, 1.25f);
+    // Back
+    glNormal3f(0, 0, -1);
+    glTexCoord2f(0, 1); glVertex3f(-1.25f, 0.0f, -1.25f);
+    glTexCoord2f(0, 0); glVertex3f(-1.25f, 20.0f, -1.25f);
+    glTexCoord2f(1, 0); glVertex3f(1.25f, 20.0f, -1.25f);
+    glTexCoord2f(1, 1); glVertex3f(1.25f, 0.0f, -1.25f);
+    // Right
+    glNormal3f(1, 0, 0);
+    glTexCoord2f(0, 1); glVertex3f(1.25f, 0.0f, -1.25f);
+    glTexCoord2f(0, 0); glVertex3f(1.25f, 20.0f, -1.25f);
+    glTexCoord2f(1, 0); glVertex3f(1.25f, 20.0f, 1.25f);
+    glTexCoord2f(1, 1); glVertex3f(1.25f, 0.0f, 1.25f);
+    // Left
+    glNormal3f(-1, 0, 0);
+    glTexCoord2f(0, 1); glVertex3f(-1.25f, 0.0f, -1.25f);
+    glTexCoord2f(0, 0); glVertex3f(-1.25f, 20.0f, -1.25f);
+    glTexCoord2f(1, 0); glVertex3f(-1.25f, 20.0f, 1.25f);
+    glTexCoord2f(1, 1); glVertex3f(-1.25f, 0.0f, 1.25f);
+    glEnd();
+
+    // Draw roof
+    glBindTexture(GL_TEXTURE_2D, roof_tex);
+    glBegin(GL_TRIANGLES);
+    float apexY = 25.0f;
+    float apexX = 0.0f, apexZ = 0.0f;
+
+    glNormal3f(0, 0.5f, 0.5f);
+    glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.25f, 20.0f, 1.25f);
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(1.25f, 20.0f, 1.25f);
+
+    glNormal3f(0.5f, 0.5f, 0.0f);
+    glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(1.25f, 20.0f, 1.25f);
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(1.25f, 20.0f, -1.25f);
+
+    glNormal3f(0, 0.5f, -0.5f);
+    glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(1.25f, 20.0f, -1.25f);
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.25f, 20.0f, -1.25f);
+
+    glNormal3f(-0.5f, 0.5f, 0.0f);
+    glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.25f, 20.0f, -1.25f);
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.25f, 20.0f, 1.25f);
+    glEnd();
+
+    glPopMatrix();
+}
+
+void _sceneB::drawGround()
 {
     //glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, ground_tex);
@@ -434,13 +533,16 @@ void _sceneA::drawGround()
     //glDisable(GL_TEXTURE_2D);
 }
 
-void _sceneA::drawLasers()
+void _sceneB::drawLasers()
 {
     glDisable(GL_LIGHTING);
     glLineWidth(2.5f);
     glColor3f(1.0f, 0.0f, 0.0f); // Red laser
     glBegin(GL_LINES);
     for (int i = 0; i < TOTAL_TOWERS; i++) {
+        // Don't draw lasers for bombs
+        if (towers[i].type == 1) continue;
+
         int idx = towers[i].targetEnemyIndex;
         if (
             idx == -1
@@ -466,7 +568,7 @@ void _sceneA::drawLasers()
     glEnable(GL_LIGHTING);
 }
 
-void _sceneA::checkAndUpdateTargets()
+void _sceneB::checkAndUpdateTargets()
 {
     for (int i = 0; i < TOTAL_TOWERS; i++) {
         if (!towers[i].isActive) continue;
@@ -477,6 +579,9 @@ void _sceneA::checkAndUpdateTargets()
 
         float closestDist = 9999.0f;
         int closestEnemy = -1;
+
+        if(towers[i].type == 1)
+            closestDist = 0.05;
 
         for (int j = 0; j < TOTAL_OBSTACLES; j++) {
             if (obstacles[j].model->pathStep < 0) continue;
@@ -497,7 +602,7 @@ void _sceneA::checkAndUpdateTargets()
     }
 }
 
-void _sceneA::attackTargets()
+void _sceneB::attackTargets()
 {
     clock_t nextFireTicks;
     int idx;
@@ -519,7 +624,15 @@ void _sceneA::attackTargets()
         cout << "TOWER " << i << " --> " << idx;
 
         // Add damage to enemy
-        obstacles[idx].model->hitCount++;
+        if (towers[i].type == 1)
+        {
+            // Detonate bomb killing a single enemy and removing the tower
+            obstacles[idx].model->hitCount += 10;
+            towers[i].isActive = false;
+
+        }
+        else obstacles[idx].model->hitCount++;
+
         if (obstacles[idx].model->hitCount >= obstacles[idx].model->maxHits)
         {
             enemiesDefeatedCount++;
@@ -535,7 +648,7 @@ void _sceneA::attackTargets()
 }
 
 
-void _sceneA::drawPlacementCircle(float towerSize, float towerRange)
+void _sceneB::drawPlacementCircle(float towerSize, float towerRange)
 {
     if (!isPlacingTower) return;
     // Is the mouse within the bounds?
@@ -545,43 +658,46 @@ void _sceneA::drawPlacementCircle(float towerSize, float towerRange)
         return;
 
     if (
-        mouseX >= -2 - towerSize && mouseX <= 0 + towerSize &&
-        mouseZ <= -0.45 + towerSize && mouseZ >= -0.55 - towerSize)
+        mouseX >= -2 - towerSize && mouseX <= -1 + towerSize &&
+        mouseZ >= -0.05 - towerSize && mouseZ <= 0.05 + towerSize)
     {
         isTowerPlaceable = false;
     }
     else if (
-        mouseX >= -2 - towerSize && mouseX <= 0 + towerSize &&
+        mouseX >= 1 - towerSize && mouseX <= 2 + towerSize &&
+        mouseZ >= -0.05 - towerSize && mouseZ <= 0.05 + towerSize)
+    {
+        isTowerPlaceable = false;
+    }
+    else if (
+        mouseX >= -1 - towerSize && mouseX <= 1 + towerSize &&
         mouseZ >= 0.45 - towerSize && mouseZ <= 0.55 + towerSize)
     {
         isTowerPlaceable = false;
     }
     else if (
-        mouseX >= 0 - towerSize && mouseX <= 2 + towerSize &&
-        mouseZ <= -0.1 + towerSize && mouseZ >= -0.2 - towerSize)
+        mouseX >= -1.05 - towerSize && mouseX <= -0.95 + towerSize &&
+        mouseZ >= -1 - towerSize && mouseZ <= 0.5 + towerSize)
     {
         isTowerPlaceable = false;
     }
     else if (
-        mouseX >= 0 - towerSize && mouseX <= 2 + towerSize &&
-        mouseZ >= 0.1 - towerSize && mouseZ <= 0.2 + towerSize)
-    {
-        isTowerPlaceable = false;
-    }
-    else if (
-        mouseX >= -0.05 - towerSize && mouseX <= 0.05 + towerSize &&
-        mouseZ <= -0.10 + towerSize && mouseZ >= -0.55 - towerSize)
+        mouseX >= 0.95 - towerSize && mouseX <= 1.05 + towerSize &&
+        mouseZ >= -1 - towerSize && mouseZ <= 0.5 + towerSize)
     {
         isTowerPlaceable = false;
     }
     else if (
         mouseX >= -0.05 - towerSize && mouseX <= 0.05 + towerSize &&
-        mouseZ >= 0.10 - towerSize && mouseZ <= 0.55 + towerSize)
+        mouseZ >= 0.5 - towerSize && mouseZ <= 1 + towerSize)
     {
         isTowerPlaceable = false;
     }
     else isTowerPlaceable = true;
     // TODO: Add check of existing towers as well.
+
+    // Bombs are only placeable on roads.
+    if (placingTowerType == 1) isTowerPlaceable = !isTowerPlaceable;
 
     if (isTowerPlaceable)
     {
@@ -612,7 +728,7 @@ void _sceneA::drawPlacementCircle(float towerSize, float towerRange)
 }
 
 
-void _sceneA::advanceEnemies()
+void _sceneB::advanceEnemies()
 {
     for(int i = 0; i < TOTAL_OBSTACLES; i++)
     {
@@ -626,7 +742,7 @@ void _sceneA::advanceEnemies()
                     obstacles[i].model->FaceRight();
                     obstacles[i].model->pos.x += OBSTACLE_SPEED;
 
-                    if(obstacles[i].model->pos.x >= 0)
+                    if(obstacles[i].model->pos.x >= -1)
                         obstacles[i].model->pathStep = 1;
 
                     break;
@@ -635,7 +751,7 @@ void _sceneA::advanceEnemies()
                     obstacles[i].model->FaceDown();
                     obstacles[i].model->pos.z += OBSTACLE_SPEED;
 
-                    if(obstacles[i].model->pos.z >= -0.15)
+                    if(obstacles[i].model->pos.z >= 0.5)
                         obstacles[i].model->pathStep = 2;
 
                     break;
@@ -644,15 +760,21 @@ void _sceneA::advanceEnemies()
                     obstacles[i].model->FaceRight();
                     obstacles[i].model->pos.x += OBSTACLE_SPEED;
 
-                    if(obstacles[i].model->pos.x >= 2)
+                    if(obstacles[i].model->pos.x >= 0)
+                        obstacles[i].model->pathStep = 3;
+
+                    break;
+                case 3:
+                    obstacles[i].model->FaceDown();
+                    obstacles[i].model->pos.z += OBSTACLE_SPEED;
+
+                    if(obstacles[i].model->pos.z >= 1)
                     {
                         obstacles[i].model->pathStep = -1;
 
                         playerHitCount++;
                         debug();
                     }
-
-                    break;
             }
         }
         else if (obstacles[i].model->path == 1)
@@ -660,32 +782,55 @@ void _sceneA::advanceEnemies()
             switch(obstacles[i].model->pathStep)
             {
                 case 0:
-                    obstacles[i].model->FaceRight();
-                    obstacles[i].model->pos.x += OBSTACLE_SPEED;
+                    obstacles[i].model->FaceDown();
+                    obstacles[i].model->pos.z += OBSTACLE_SPEED;
 
-                    if(obstacles[i].model->pos.x >= 0)
+                    if(obstacles[i].model->pos.z >= 0.5)
+                    {
+                        obstacles[i].model->path = 0;
+                        obstacles[i].model->pathStep = 2;
+                    }
+                    break;
+            }
+        }
+        else if (obstacles[i].model->path == 2)
+        {
+            switch(obstacles[i].model->pathStep)
+            {
+                case 0:
+                    obstacles[i].model->FaceDown();
+                    obstacles[i].model->pos.z += OBSTACLE_SPEED;
+
+                    if(obstacles[i].model->pos.z >= 0.5)
                         obstacles[i].model->pathStep = 1;
 
                     break;
 
                 case 1:
-                    obstacles[i].model->FaceUp();
-                    obstacles[i].model->pos.z -= OBSTACLE_SPEED;
+                    obstacles[i].model->FaceLeft();
+                    obstacles[i].model->pos.x -= OBSTACLE_SPEED;
 
-                    if(obstacles[i].model->pos.z <= 0.15)
-                        obstacles[i].model->pathStep = 2;
+                    if(obstacles[i].model->pos.x <= 0)
+                    {
+                        obstacles[i].model->path = 0;
+                        obstacles[i].model->pathStep = 3;
+                    }
 
                     break;
+            }
+        }
+        else if (obstacles[i].model->path == 3)
+        {
+            switch(obstacles[i].model->pathStep)
+            {
+                case 0:
+                    obstacles[i].model->FaceLeft();
+                    obstacles[i].model->pos.x -= OBSTACLE_SPEED;
 
-                case 2:
-                    obstacles[i].model->FaceRight();
-                    obstacles[i].model->pos.x += OBSTACLE_SPEED;
-
-                    if(obstacles[i].model->pos.x >= 2)
+                    if(obstacles[i].model->pos.x <= 1)
                     {
-                        obstacles[i].model->pathStep = -1;
-                        playerHitCount++;
-                        debug();
+                        obstacles[i].model->path = 2;
+                        obstacles[i].model->pathStep = 0;
                     }
 
                     break;
@@ -694,9 +839,9 @@ void _sceneA::advanceEnemies()
     }
 }
 
-void _sceneA::createTowerAtPoint(int towerType, float x, float z)
+void _sceneB::createTowerAtPoint(int towerType, float x, float z)
 {
-    if(!isPlacingTower || !isTowerPlaceable || availableResources < TOWER_BASE_COST) return;
+    if(!isPlacingTower || !isTowerPlaceable) return;
 
     //find the first available tower slot
     for (int i = 0; i < TOTAL_TOWERS; i++)
@@ -707,18 +852,38 @@ void _sceneA::createTowerAtPoint(int towerType, float x, float z)
         towers[i].isActive = true;
         towers[i].type = towerType;
 
-        towers[i].xMin = x - 0.05;
-        towers[i].xMax = x + 0.05;
-        towers[i].yMin = 0;
-        towers[i].yMax = 0.15;
-        towers[i].zMin = z - 0.05;
-        towers[i].zMax = z + 0.05;
-        towers[i].targetEnemyIndex = -1;
-        towers[i].lastAttackTicks = globalTimer->getTicks();
-        towers[i].hasFirstAttack = false;
+        if (towerType == 0)
+        {
+            towers[i].xMin = x - 0.05;
+            towers[i].xMax = x + 0.05;
+            towers[i].yMin = 0;
+            towers[i].yMax = 0.15;
+            towers[i].zMin = z - 0.05;
+            towers[i].zMax = z + 0.05;
+            towers[i].targetEnemyIndex = -1;
+            towers[i].lastAttackTicks = globalTimer->getTicks();
+            towers[i].hasFirstAttack = false;
 
-        totalSpentResources += TOWER_BASE_COST;
-        availableResources -= TOWER_BASE_COST;
+            totalSpentResources += TOWER_BASE_COST;
+            availableResources -= TOWER_BASE_COST;
+        }
+        else
+        {
+            towers[i].xMin = x - 0.01;
+            towers[i].xMax = x + 0.01;
+            towers[i].yMin = 0;
+            towers[i].yMax = 0.02;
+            towers[i].zMin = z - 0.01;
+            towers[i].zMax = z + 0.01;
+            towers[i].targetEnemyIndex = -1;
+            towers[i].lastAttackTicks = globalTimer->getTicks();
+            towers[i].hasFirstAttack = false;
+
+            totalSpentResources += TOWER_BOMB_COST;
+            availableResources -= TOWER_BOMB_COST;
+        }
+
+
         isPlacingTower = false;
 
         debug();
@@ -731,7 +896,7 @@ void _sceneA::createTowerAtPoint(int towerType, float x, float z)
 
 
 
-void _sceneA::transitionSceneState()
+void _sceneB::transitionSceneState()
 {
 
     int newState = currentSceneState;
@@ -776,7 +941,7 @@ void _sceneA::transitionSceneState()
     currentSceneState = newState;
 }
 
-void _sceneA::spawnObstacles()
+void _sceneB::spawnObstacles()
 {
     // Check if we're within timer range and haven't maxed out level spawns
     if(totalEnemiesSpawned < WAVE_SIZE && spawnTimer->getTicks() >= spawnTimerDelayMs)
@@ -793,18 +958,29 @@ void _sceneA::spawnObstacles()
         else
         {
 
-            if (spawnLocation < 50)
+            if (spawnLocation < 25)
             {
                 obj1->pos.x = -2;
-                obj1->pos.z = -0.5;
+                obj1->pos.z = 0;
                 obj1->path = 0;
+            }
+            else if (spawnLocation < 50)
+            {
+                obj1->pos.x = -1;
+                obj1->pos.z = -1;
+                obj1->path = 1;
+            }
+            else if (spawnLocation < 75)
+            {
+                obj1->pos.x = 1;
+                obj1->pos.z = -1;
+                obj1->path = 2;
             }
             else
             {
-                // Location B
-                obj1->pos.x = -2;
-                obj1->pos.z = 0.5;
-                obj1->path = 1;
+                obj1->pos.x = 2;
+                obj1->pos.z = 0;
+                obj1->path = 3;
             }
 
             obj1->pathStep = 0;
@@ -812,7 +988,7 @@ void _sceneA::spawnObstacles()
 
             totalEnemiesSpawned++;
 
-            cout << "Obstacle: " << obj1->debugId << " at spawn location " << obj1->path << endl;
+            cout << "Obstacle #" << totalEnemiesSpawned << ": " << obj1->debugId << " at spawn location " << obj1->path << endl;
 
         }
 
@@ -824,7 +1000,7 @@ void _sceneA::spawnObstacles()
     }
 }
 
-_3dmodelloader* _sceneA::getAvailableObstacleModel()
+_3dmodelloader* _sceneB::getAvailableObstacleModel()
 {
 
     // Find the first obstacle that is off the screen
@@ -837,20 +1013,20 @@ _3dmodelloader* _sceneA::getAvailableObstacleModel()
     return nullptr;
 }
 
-bool _sceneA::hasCollided()
+bool _sceneB::hasCollided()
 {
 
     return false;
 }
 
-void _sceneA::reset()
+void _sceneB::reset()
 {
     waveSize = WAVE_SIZE;
     enemiesDefeatedCount = 0;
     totalEnemiesSpawned = 0;
     playerHitCount = 0;
-    availableResources = TOWER_BASE_COST;
-    totalSpentResources = 0;
+    availableResources = TOWER_BASE_COST + (2 * TOWER_BOMB_COST);
+    totalSpentResources = -2 * TOWER_BOMB_COST;
 
     currentSceneState = SCENE_START;
     victoryTimer->reset();
@@ -864,10 +1040,15 @@ void _sceneA::reset()
     {
         towers[i].isActive = false;
     }
+
+    // Load demo bombs
+    isTowerPlaceable = true;
+    isPlacingTower = true; createTowerAtPoint(1, -1, 0);
+    isPlacingTower = true; createTowerAtPoint(1, -1, 0.15);
 }
 
 
-int _sceneA::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+int _sceneB::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     //cout << "wParam = " << wParam << endl;
     switch(uMsg)
@@ -906,7 +1087,16 @@ int _sceneA::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             else if(currentSceneState == SCENE_RUNNING || currentSceneState == SCENE_RECOVERY)
             {
                 if(wParam == 49 && availableResources >= TOWER_BASE_COST) // 1 on keyboard
-                    isPlacingTower = !isPlacingTower;
+                {
+                    isPlacingTower = true;
+                    placingTowerType = 0;
+                }
+
+                if(wParam == 50 && availableResources >= TOWER_BOMB_COST) // 2 on keyboard
+                {
+                    isPlacingTower = true;
+                    placingTowerType = 1;
+                }
             }
             else
             {
@@ -927,7 +1117,7 @@ int _sceneA::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case WM_LBUTTONUP:
             if(currentSceneState == SCENE_RUNNING)
-                createTowerAtPoint(0, mouseX, mouseZ);
+                createTowerAtPoint(placingTowerType, mouseX, mouseZ);
 
             break;
 
