@@ -7,7 +7,7 @@
 #include <_textureloader.h>
 #include <_sounds.h>
 
-#define MUSIC_FILE "sounds/The Creepy Clown - Jeremy Korpas.mp3"
+#define MUSIC_FILE "sounds/guards_of_war.mp3"
 
 class _sceneLanding : public _baseScene
 {
