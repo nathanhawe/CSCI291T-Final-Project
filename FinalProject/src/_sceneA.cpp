@@ -85,6 +85,8 @@ GLint _sceneA::IniGL()
     // Setup game state
     waveSize = WAVE_SIZE;
     enemiesDefeatedCount = 0;
+    availableResources = TOWER_BASE_COST;
+    totalSpentResources = 0;
 
     return true;
 }
@@ -473,6 +475,7 @@ void _sceneA::attackTargets()
         if (obstacles[idx].model->hitCount >= obstacles[idx].model->maxHits)
         {
             enemiesDefeatedCount++;
+            availableResources++;
             obstacles[idx].model->pathStep = -1;
         }
 
@@ -645,7 +648,7 @@ void _sceneA::advanceEnemies()
 
 void _sceneA::createTowerAtPoint(int towerType, float x, float z)
 {
-    if(!isPlacingTower || !isTowerPlaceable) return;
+    if(!isPlacingTower || !isTowerPlaceable || availableResources < TOWER_BASE_COST) return;
 
     //find the first available tower slot
     for (int i = 0; i < TOTAL_TOWERS; i++)
@@ -665,6 +668,12 @@ void _sceneA::createTowerAtPoint(int towerType, float x, float z)
         towers[i].targetEnemyIndex = -1;
         towers[i].lastAttackTicks = globalTimer->getTicks();
         towers[i].hasFirstAttack = false;
+
+        totalSpentResources += TOWER_BASE_COST;
+        availableResources -= TOWER_BASE_COST;
+        isPlacingTower = false;
+
+        debug();
 
         return;
     }
@@ -792,6 +801,8 @@ void _sceneA::reset()
     enemiesDefeatedCount = 0;
     totalEnemiesSpawned = 0;
     playerHitCount = 0;
+    availableResources = TOWER_BASE_COST;
+    totalSpentResources = 0;
 
     currentSceneState = SCENE_START;
     victoryTimer->reset();
@@ -846,7 +857,7 @@ int _sceneA::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             }
             else if(currentSceneState == SCENE_RUNNING || currentSceneState == SCENE_RECOVERY)
             {
-                if(wParam == 49) // 1 on keyboard
+                if(wParam == 49 && availableResources >= 3) // 1 on keyboard
                     isPlacingTower = !isPlacingTower;
             }
             else

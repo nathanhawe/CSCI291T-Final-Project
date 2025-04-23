@@ -35,6 +35,7 @@
 
 
 #define TOTAL_TOWERS 10
+#define TOWER_BASE_COST 4
 class _sceneA: public _baseScene
 {
     public:
