@@ -23,6 +23,8 @@
 #define TOWER_FIRE_DELAY 1500
 #define LASER_DURATION 300
 
+
+
 #define MUSIC_FILE "sounds/military-drums.mp3"
 #define SOUND_COLLISION_FILE "sounds/Glass Windows Breaking.mp3"
 #define SOUND_SUCCESS "sounds/Magic Chime.mp3"
@@ -73,6 +75,8 @@ class _sceneA: public _baseScene
 
         void createTowerAtPoint(int towerType, float x, float z);
         void drawTowerAt(float x, float y, float z, float width, float height);
+        void drawTeslaTowerAt(float x, float y, float z, float width, float height);
+        void drawCylinder(float baseRadius, float topRadius, float height, int slices);
         void drawGround();
         void drawLasers();
         void checkAndUpdateTargets();
