@@ -734,6 +734,9 @@ void _sceneB::advanceEnemies()
     {
         if (obstacles[i].model->pathStep < 0) continue;
 
+        if (obstacles[i].model->lastMovementTime + OBSTACLE_TIMER_DELAY > globalTimer->getTicks()) continue;
+        obstacles[i].model->lastMovementTime = globalTimer->getTicks();
+
         if(obstacles[i].model->path == 0)
         {
             switch(obstacles[i].model->pathStep)

@@ -158,6 +158,7 @@ class _3dmodelloader
           // For tracking position and movement
           int path;
           int pathStep;
+          clock_t lastMovementTime;
 
           // For tracking health
           int maxHits;

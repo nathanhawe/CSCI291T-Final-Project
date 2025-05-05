@@ -18,6 +18,8 @@ _3dmodelloader::_3dmodelloader()
     hitCount = 0;
     maxHits = 4;
 
+    lastMovementTime = 0;
+
 }
 
 _3dmodelloader::~_3dmodelloader()
