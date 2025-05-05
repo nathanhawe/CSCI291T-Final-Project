@@ -60,7 +60,7 @@ GLint _sceneA::IniGL()
 
     /* Load obstacles into array */
     for (int i = 0; i < TOTAL_OBSTACLES; i++)
-        enemyFactory->GenerateVegeta(&obstacles[i].model, &obstacles[i].weapon, i);
+        enemyFactory->GenerateTekk(&obstacles[i].model, &obstacles[i].weapon, i);
 
     // Load popup images
     img_popup = textureLoader->loadImages("images/popup.png");
