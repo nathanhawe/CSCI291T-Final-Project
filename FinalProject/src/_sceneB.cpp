@@ -190,7 +190,7 @@ GLvoid _sceneB::renderScene()
         glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
         glScalef(0.002f, 0.002f, 0.002f);
 
-        fort1->drawfort();
+        //fort1->drawfort();
         glPopMatrix();
 
         glColor3f(1, 1, 1);
