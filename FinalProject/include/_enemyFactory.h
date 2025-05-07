@@ -2,7 +2,10 @@
 #define _ENEMYFACTORY_H
 
 #define MODEL_TRIS_VEGETA "models/vegeta2/tris.md2"
+#define MODEL_TRIS_TEKK "models/Tekk/tris.md2"
+
 #define WEAPON_TRIS_VEGETA "models/vegeta2/weapon.md2"
+#define WEAPON_TRIS_TEKK "models/Tekk/weapon.md2"
 
 #include <_3dmodelloader.h>
 
@@ -13,9 +16,11 @@ class _enemyFactory
         virtual ~_enemyFactory();
 
         void GenerateVegeta(_3dmodelloader **mdl, _3dmodelloader **weaponMdl, int id);
+        void GenerateTekk(_3dmodelloader **mdl, _3dmodelloader **weaponMdl, int id);
 
     protected:
         void loadRandomSkins(_3dmodelloader *mdl, _3dmodelloader *weaponMdl);
+        void loadRandomTekkSkins(_3dmodelloader *mdl, _3dmodelloader *weaponMdl);
 
     private:
 };

@@ -12,6 +12,8 @@
 #include<_sounds.h>
 #include<_enemyFactory.h>
 #include<_skybox.h>
+#include<_objLoader.h>
+#include<_fort.h>
 
 #define WAVE_SIZE 20
 
@@ -20,23 +22,17 @@
 #define IMMUNITY_TIMER_MS 2000
 #define VICTORY_TIMER_MS 30000
 #define TRANSITION_TIMER_MS 5000
-#define TOWER_FIRE_DELAY 1500
+#define TOWER_FIRE_DELAY 750
 #define LASER_DURATION 300
 
 #define MUSIC_FILE "sounds/military-drums.mp3"
-#define SOUND_COLLISION_FILE "sounds/Glass Windows Breaking.mp3"
-#define SOUND_SUCCESS "sounds/Magic Chime.mp3"
-#define SOUND_FAIL "sounds/Sad Trombone Wah Wah Wah Fail Sound - Sound Effect #35.mp3"
-#define SOUND_LASER "sounds/laser.mp3"
 
+#define OBSTACLE_SPEED 0.01
+#define OBSTACLE_TIMER_DELAY 30
+#define OBSTACLE_FIRE_DELAY 3000
 
-#define TOTAL_OBSTACLES 10
-#define OBSTACLE_SPEED 0.00025
-
-
-#define TOTAL_TOWERS 10
-#define TOWER_BASE_COST 4
-#define TOWER_BOMB_COST 2
+#define BULLET_SPEED 0.003
+#define BULLET_TIMER_DELAY 30
 
 class _sceneB: public _baseScene
 {
@@ -67,36 +63,22 @@ class _sceneB: public _baseScene
         _3dmodelloader* getAvailableObstacleModel();
         bool hasCollided();
 
-        void drawRoadHorizontal(float xStart, float xEnd, float z, float width);
-        void drawRoadVertical(float zStart, float zEnd, float x, float width);
         void drawPlacementCircle(float towerSize, float towerRange);
 
         void advanceEnemies();
 
-        void createTowerAtPoint(int towerType, float x, float z);
-        void drawTowerAt(float x, float y, float z, float width, float height);
-        void drawBombAt(float x, float y, float z, float width, float height);
-        void drawGround();
-        void drawLasers();
         void checkAndUpdateTargets();
         void attackTargets();
 
         void drawOverlay();
 
-        bool isPlacingTower = false;
-        bool isTowerPlaceable = false;
         int placingTowerType;
 
         int returnToStateAfterPause;
-        GLuint img_popup, img_defeat, img_victory, ground_tex, tower_tex, roof_tex, dirt_tex;
+        GLuint img_popup, img_defeat, img_victory, dirt_tex;
         GLuint overlay1_notReady, overlay1_ready, overlay1_selected;
         GLuint overlay2_notReady, overlay2_ready, overlay2_selected;
         GLuint overlay3_disabled;
-
-
-        _sounds *snds = new _sounds();
-        ISound *backgroundMusic;
-        ISoundSource *laserSoundSource;
 
         _inputs *myInputs = new _inputs();
 
@@ -104,13 +86,11 @@ class _sceneB: public _baseScene
         _timer *immunityTimer = new _timer();
         _timer *spawnTimer = new _timer();
         _timer *transitionDelayTimer = new _timer();
-        _timer *globalTimer = new _timer();
 
         int spawnTimerDelayMs = 0;
         int spawnTimerDelayMinimumDuration = 2000;
         int spawnTimerDelayRange = 2500;
 
-        _textureLoader *textureLoader = new _textureLoader();
         vec3 roadRotation;
 
         _camera *camera = new _camera();
@@ -118,12 +98,7 @@ class _sceneB: public _baseScene
 
         // Models
         _enemyFactory *enemyFactory = new _enemyFactory();
-
-        struct enemyModel
-        {
-            _3dmodelloader *model;
-            _3dmodelloader *weapon;
-        };
+        _fort *fort1 = new _fort();
 
         _3dmodelloader *collidedObstacle = nullptr;
         _3dmodelloader *collidedObstacleW = nullptr;
@@ -131,23 +106,10 @@ class _sceneB: public _baseScene
         enemyModel obstacles[TOTAL_OBSTACLES];
 
         // Towers
-        struct tower
-        {
-            bool isActive;
-            int type;
-            int health;
-            float xMin;
-            float xMax;
-            float yMin;
-            float yMax;
-            float zMin;
-            float zMax;
-            int targetEnemyIndex = -1;
-            clock_t lastAttackTicks;
-            bool hasFirstAttack;
-        };
-
         tower towers[TOTAL_TOWERS];
+
+        // Enemy attacks
+        bullet bullets[TOTAL_BULLETS];
 
 };
 
