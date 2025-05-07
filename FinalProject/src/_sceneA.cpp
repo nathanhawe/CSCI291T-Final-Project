@@ -291,7 +291,7 @@ GLvoid _sceneA::renderScene()
 
     checkAndUpdateTargets();
     attackTargets();
-    drawLasers();
+    drawLasers(towers, obstacles, LASER_DURATION);
 
 
     glColor3f(1, 1, 1);
@@ -337,42 +337,6 @@ void _sceneA::drawOverlay()
         glTexCoord2f(1, 0); glVertex3f(0.35, 1.00, -0.5);
     glEnd();
 
-}
-
-void _sceneA::drawLasers()
-{
-    glDisable(GL_LIGHTING);
-    glLineWidth(2.5f);
-    if (istowerType == 0) {
-            glColor3f(1.0f, 0.0f, 0.0f); // Red for regular tower
-        } else  {
-            glColor3f(0.2f, 0.5f, 0.9f);
-        }
-    glBegin(GL_LINES);
-    for (int i = 0; i < TOTAL_TOWERS; i++) {
-        int idx = towers[i].targetEnemyIndex;
-        if (
-            idx == -1
-            || !towers[i].isActive
-            || obstacles[idx].model->pathStep < 0
-            || !towers[i].hasFirstAttack
-            || (towers[i].lastAttackTicks + LASER_DURATION) > globalTimer->getTicks())
-            continue;
-
-        float tx = (towers[i].xMin + towers[i].xMax) / 2.0f;
-        float ty = towers[i].yMax;
-        float tz = (towers[i].zMin + towers[i].zMax) / 2.0f;
-
-        float ex = obstacles[idx].model->pos.x;
-        float ey = obstacles[idx].model->pos.y;
-        float ez = obstacles[idx].model->pos.z;
-
-        glVertex3f(tx, ty, tz);  // From tower
-        glVertex3f(ex, ey, ez);  // To enemy
-    }
-    glEnd();
-
-    glEnable(GL_LIGHTING);
 }
 
 void _sceneA::checkAndUpdateTargets()

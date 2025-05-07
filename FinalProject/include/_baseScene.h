@@ -164,6 +164,46 @@ class _baseScene
             glEnd();
         }
 
+        void drawLasers(tower (&towers)[TOTAL_TOWERS], enemyModel (&obstacles)[TOTAL_OBSTACLES], clock_t laserDuration)
+        {
+            glDisable(GL_LIGHTING);
+            glLineWidth(2.5f);
+            glBegin(GL_LINES);
+            for (int i = 0; i < TOTAL_TOWERS; i++) {
+                // Don't draw lasers for bombs
+                if (towers[i].type == 1) continue;
+
+                if (towers[i].type == 0) {
+                    glColor3f(1.0f, 0.0f, 0.0f); // Red for regular tower
+                } else  {
+                    glColor3f(0.2f, 0.5f, 0.9f);
+                }
+
+                int idx = towers[i].targetEnemyIndex;
+                if (
+                    idx == -1
+                    || !towers[i].isActive
+                    || obstacles[idx].model->pathStep < 0
+                    || !towers[i].hasFirstAttack
+                    || (towers[i].lastAttackTicks + laserDuration) > globalTimer->getTicks())
+                    continue;
+
+                float tx = (towers[i].xMin + towers[i].xMax) / 2.0f;
+                float ty = towers[i].yMax;
+                float tz = (towers[i].zMin + towers[i].zMax) / 2.0f;
+
+                float ex = obstacles[idx].model->pos.x;
+                float ey = obstacles[idx].model->pos.y;
+                float ez = obstacles[idx].model->pos.z;
+
+                glVertex3f(tx, ty, tz);  // From tower
+                glVertex3f(ex, ey, ez);  // To enemy
+            }
+            glEnd();
+
+            glEnable(GL_LIGHTING);
+        }
+
         void createTowerAtPoint(int towerType, float x, float z, tower (&towers)[TOTAL_TOWERS])
         {
             if(!isPlacingTower || !isTowerPlaceable) return;

@@ -71,7 +71,6 @@ class _sceneA: public _baseScene
 
         void advanceEnemies();
 
-        void drawLasers();
         void checkAndUpdateTargets();
         void attackTargets();
         void drawOverlay();
