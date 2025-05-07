@@ -81,12 +81,6 @@ class _sceneA: public _baseScene
         GLuint overlay2_disabled;
         GLuint overlay3_disabled;
 
-
-        _sounds *snds = new _sounds();
-        ISound *backgroundMusic;
-        ISoundSource *laserSoundSource;
-        ISoundSource *electricSoundSource;
-
         _inputs *myInputs = new _inputs();
 
         _timer *victoryTimer = new _timer();

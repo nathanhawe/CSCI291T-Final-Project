@@ -5,6 +5,7 @@
 #include <_3dmodelloader.h>
 #include <_timer.h>
 #include <_textureloader.h>
+#include <_sounds.h>
 
 #define MAX_HITS 1
 #define TOTAL_TOWERS 10
@@ -71,6 +72,10 @@ class _baseScene
         {
             delete globalTimer;
             delete textureLoader;
+            delete snds;
+            delete backgroundMusic;
+            delete laserSoundSource;
+            delete electricSoundSource;
         }
 
         void init()
@@ -79,6 +84,12 @@ class _baseScene
             roof_tex = textureLoader->loadImages("images/roof.jpg");
             ground_tex = textureLoader->loadImages("images/ground.jpg");
             dirt_tex = textureLoader->loadImages("images/dirt.jpg");
+
+            snds->initSound();
+            laserSoundSource = snds->loadSoundSource(SOUND_LASER);
+            laserSoundSource->setDefaultVolume(0.30f);
+            electricSoundSource = snds->loadSoundSource(SOUND_ELECTRIC);
+            electricSoundSource->setDefaultVolume(0.30f);
         }
 
         GLvoid resizeWindow(GLsizei width, GLsizei height)
@@ -615,6 +626,11 @@ class _baseScene
 
         bool isPlacingTower = false;
         bool isTowerPlaceable = false;
+
+        _sounds *snds = new _sounds();
+        ISound *backgroundMusic;
+        ISoundSource *laserSoundSource;
+        ISoundSource *electricSoundSource;;
 
     protected:
         vec2 dim;

@@ -10,7 +10,6 @@ _sceneA::~_sceneA()
 {
 
     //dtor
-    delete snds;
     delete myInputs;
     delete victoryTimer;
     delete immunityTimer;
@@ -19,11 +18,6 @@ _sceneA::~_sceneA()
     delete globalTimer;
     delete camera;
     delete enemyFactory;
-
-    delete backgroundMusic;
-    delete laserSoundSource;
-    delete electricSoundSource;
-
     delete fort1;
 
     for (int i = 0; i < TOTAL_OBSTACLES; i++)
@@ -82,15 +76,10 @@ GLint _sceneA::IniGL()
 
 
     // Start background music
-    snds->initSound();
     sky->skyBoxInit();
     fort1->initFortassets();
     backgroundMusic = snds->playMusic(MUSIC_FILE);
     backgroundMusic->setVolume(0.15f);
-    laserSoundSource = snds->loadSoundSource(SOUND_LASER);
-    laserSoundSource->setDefaultVolume(0.30f);
-    electricSoundSource = snds->loadSoundSource(SOUND_ELECTRIC);
-    electricSoundSource->setDefaultVolume(0.30f);
 
     // Setup game state
     waveSize = WAVE_SIZE;
