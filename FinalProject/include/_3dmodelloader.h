@@ -164,6 +164,8 @@ class _3dmodelloader
           int maxHits;
           int hitCount;
 
+          vec3 bulletColor;
+
 	private:
 
 

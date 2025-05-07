@@ -80,7 +80,7 @@ void _enemyFactory::GenerateTekk(_3dmodelloader** mdl, _3dmodelloader** weaponMd
 
     (*mdl)->FaceRight();
 
-    (*mdl)->maxHits = 3;
+    (*mdl)->maxHits = 2;
     (*mdl)->hitCount = 0;
 
     // Action frames
@@ -107,15 +107,68 @@ void _enemyFactory::loadRandomTekkSkins(_3dmodelloader* mdl, _3dmodelloader* wea
 {
     switch(rand() % 9)
     {
-        case 0: mdl->initModel(MODEL_TRIS_TEKK, "models/Tekk/blade.jpg"); weaponMdl->initModel(WEAPON_TRIS_TEKK, "models/Tekk/blade.jpg"); break;
-        case 1: mdl->initModel(MODEL_TRIS_TEKK, "models/Tekk/blade_black.jpg"); weaponMdl->initModel(WEAPON_TRIS_TEKK, "models/Tekk/blade_black.jpg"); break;
-        case 2: mdl->initModel(MODEL_TRIS_TEKK, "models/Tekk/blade_blue.jpg"); weaponMdl->initModel(WEAPON_TRIS_TEKK, "models/Tekk/blade_blue.jpg"); break;
-        case 3: mdl->initModel(MODEL_TRIS_TEKK, "models/Tekk/blade_blue2.jpg"); weaponMdl->initModel(WEAPON_TRIS_TEKK, "models/Tekk/blade_blue2.jpg"); break;
-        case 4: mdl->initModel(MODEL_TRIS_TEKK, "models/Tekk/blade_brown.jpg"); weaponMdl->initModel(WEAPON_TRIS_TEKK, "models/Tekk/blade_brown.jpg"); break;
-        case 5: mdl->initModel(MODEL_TRIS_TEKK, "models/Tekk/blade_brown2.jpg"); weaponMdl->initModel(WEAPON_TRIS_TEKK, "models/Tekk/blade_brown2.jpg"); break;
-        case 6: mdl->initModel(MODEL_TRIS_TEKK, "models/Tekk/blade_green.jpg"); weaponMdl->initModel(WEAPON_TRIS_TEKK, "models/Tekk/blade_green.jpg"); break;
-        case 7: mdl->initModel(MODEL_TRIS_TEKK, "models/Tekk/blade_green2.jpg"); weaponMdl->initModel(WEAPON_TRIS_TEKK, "models/Tekk/blade_green2.jpg"); break;
-        case 8: mdl->initModel(MODEL_TRIS_TEKK, "models/Tekk/blade_yellow.jpg"); weaponMdl->initModel(WEAPON_TRIS_TEKK, "models/Tekk/blade_yellow.jpg"); break;
+        case 0:
+            mdl->initModel(MODEL_TRIS_TEKK, "models/Tekk/blade.jpg"); weaponMdl->initModel(WEAPON_TRIS_TEKK, "models/Tekk/blade.jpg");
+            mdl->bulletColor.x = 217/255.0;
+            mdl->bulletColor.y = 165/255.0;
+            mdl->bulletColor.z = 0;
+            break;
+
+        case 1:
+            mdl->initModel(MODEL_TRIS_TEKK, "models/Tekk/blade_black.jpg"); weaponMdl->initModel(WEAPON_TRIS_TEKK, "models/Tekk/blade_black.jpg");
+            mdl->bulletColor.x = 0;
+            mdl->bulletColor.y = 0;
+            mdl->bulletColor.z = 100/255.0;
+            break;
+
+        case 2:
+            mdl->initModel(MODEL_TRIS_TEKK, "models/Tekk/blade_blue.jpg"); weaponMdl->initModel(WEAPON_TRIS_TEKK, "models/Tekk/blade_blue.jpg");
+            mdl->bulletColor.x = 0;
+            mdl->bulletColor.y = 0;
+            mdl->bulletColor.z = 200/255.0;
+            break;
+
+        case 3:
+            mdl->initModel(MODEL_TRIS_TEKK, "models/Tekk/blade_blue2.jpg"); weaponMdl->initModel(WEAPON_TRIS_TEKK, "models/Tekk/blade_blue2.jpg");
+            mdl->bulletColor.x = 0;
+            mdl->bulletColor.y = 0;
+            mdl->bulletColor.z = 255/255.0;
+            break;
+
+        case 4:
+            mdl->initModel(MODEL_TRIS_TEKK, "models/Tekk/blade_brown.jpg"); weaponMdl->initModel(WEAPON_TRIS_TEKK, "models/Tekk/blade_brown.jpg");
+            mdl->bulletColor.x = 255/255.0;
+            mdl->bulletColor.y = 247/255.0;
+            mdl->bulletColor.z = 218/255.0;
+            break;
+
+        case 5:
+            mdl->initModel(MODEL_TRIS_TEKK, "models/Tekk/blade_brown2.jpg"); weaponMdl->initModel(WEAPON_TRIS_TEKK, "models/Tekk/blade_brown2.jpg");
+            mdl->bulletColor.x = 150/255.0;
+            mdl->bulletColor.y = 93/255.0;
+            mdl->bulletColor.z = 0;
+            break;
+
+        case 6:
+            mdl->initModel(MODEL_TRIS_TEKK, "models/Tekk/blade_green.jpg"); weaponMdl->initModel(WEAPON_TRIS_TEKK, "models/Tekk/blade_green.jpg");
+            mdl->bulletColor.x = 0;
+            mdl->bulletColor.y = 200/255.0;
+            mdl->bulletColor.z = 0;
+            break;
+
+        case 7:
+            mdl->initModel(MODEL_TRIS_TEKK, "models/Tekk/blade_green2.jpg"); weaponMdl->initModel(WEAPON_TRIS_TEKK, "models/Tekk/blade_green2.jpg");
+            mdl->bulletColor.x = 0;
+            mdl->bulletColor.y = 255/255.0;
+            mdl->bulletColor.z = 0;
+            break;
+
+        case 8:
+            mdl->initModel(MODEL_TRIS_TEKK, "models/Tekk/blade_yellow.jpg"); weaponMdl->initModel(WEAPON_TRIS_TEKK, "models/Tekk/blade_yellow.jpg");
+            mdl->bulletColor.x = 217/255.0;
+            mdl->bulletColor.y = 221/255.0;
+            mdl->bulletColor.z = 0;
+            break;
 
     }
 

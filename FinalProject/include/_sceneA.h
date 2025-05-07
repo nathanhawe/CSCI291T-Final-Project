@@ -20,7 +20,7 @@
 #define IMMUNITY_TIMER_MS 2000
 #define VICTORY_TIMER_MS 30000
 #define TRANSITION_TIMER_MS 5000
-#define TOWER_FIRE_DELAY 1500
+#define TOWER_FIRE_DELAY 750
 #define LASER_DURATION 300
 
 
@@ -30,15 +30,23 @@
 #define SOUND_SUCCESS "sounds/Magic Chime.mp3"
 #define SOUND_FAIL "sounds/Sad Trombone Wah Wah Wah Fail Sound - Sound Effect #35.mp3"
 #define SOUND_LASER "sounds/laser.mp3"
+#define SOUND_BULLET "sounds/laser.mp3"
 
 
 #define TOTAL_OBSTACLES 10
-#define OBSTACLE_SPEED 0.005
-#define OBSTACLE_TIMER_DELAY 50
+#define OBSTACLE_SPEED 0.01
+
+#define OBSTACLE_TIMER_DELAY 30
+#define OBSTACLE_FIRE_DELAY 3000
 
 
 #define TOTAL_TOWERS 10
-#define TOWER_BASE_COST 4
+#define TOWER_BASE_COST 3
+
+#define TOTAL_BULLETS 250
+#define BULLET_SPEED 0.003
+#define BULLET_TIMER_DELAY 30
+
 class _sceneA: public _baseScene
 {
     public:
@@ -73,6 +81,8 @@ class _sceneA: public _baseScene
         void drawPlacementCircle(float towerSize, float towerRange);
 
         void advanceEnemies();
+        void checkAndUpdateEnemyTargets();
+        void attackEnemyTargets();
 
         void createTowerAtPoint(int towerType, float x, float z);
         void drawTowerAt(float x, float y, float z, float width, float height);
@@ -82,6 +92,9 @@ class _sceneA: public _baseScene
         void drawLasers();
         void checkAndUpdateTargets();
         void attackTargets();
+
+        void advanceAndDrawBullets();
+        void checkBulletCollision();
 
         void drawOverlay();
 
@@ -124,6 +137,8 @@ class _sceneA: public _baseScene
         {
             _3dmodelloader *model;
             _3dmodelloader *weapon;
+            int targetEnemyIndex = -1;
+            clock_t lastAttackTicks;
         };
 
         _3dmodelloader *collidedObstacle = nullptr;
@@ -149,6 +164,20 @@ class _sceneA: public _baseScene
         };
 
         tower towers[TOTAL_TOWERS];
+
+        // Enemy attacks
+        struct bullet
+        {
+            bool isActive;
+            float t;
+            vec3 color;
+            vec3 position;
+            vec3 start;
+            vec3 stop;
+            clock_t lastMoveTicks;
+
+        };
+        bullet bullets[TOTAL_BULLETS];
 
 };
 

@@ -195,6 +195,8 @@ GLvoid _sceneA::renderScene()
         {
             advanceEnemies();
             drawPlacementCircle(0.05, 0.18);
+            advanceAndDrawBullets();
+            checkBulletCollision();
         }
 
         if(currentSceneState == SCENE_PAUSE)
@@ -271,6 +273,8 @@ GLvoid _sceneA::renderScene()
             drawTeslaTowerAt(posX, posY, posZ, towerWidth, towerHeight);
         }
 
+    checkAndUpdateEnemyTargets();
+    attackEnemyTargets();
     checkAndUpdateTargets();
     attackTargets();
     drawLasers();
@@ -753,7 +757,7 @@ void _sceneA::createTowerAtPoint(int towerType, float x, float z)
     {
         if (towers[i].isActive) continue;
 
-        towers[i].health = 100;
+        towers[i].health = 4;
         towers[i].isActive = true;
         towers[i].type = towerType;
 
@@ -881,7 +885,11 @@ _3dmodelloader* _sceneA::getAvailableObstacleModel()
     for (int i = 0; i < TOTAL_OBSTACLES; i++)
     {
         if (obstacles[i].model->pathStep < 0)
+        {
+            obstacles[i].targetEnemyIndex = -1;
             return obstacles[i].model;
+        }
+
     }
 
     return nullptr;
@@ -908,11 +916,17 @@ void _sceneA::reset()
     for (int i = 0; i < TOTAL_OBSTACLES; i++)
     {
         obstacles[i].model->pathStep = -1;
+        obstacles[i].targetEnemyIndex = -1;
     }
 
     for (int i = 0; i < TOTAL_TOWERS; i++)
     {
         towers[i].isActive = false;
+    }
+
+    for (int i = 0; i < TOTAL_BULLETS; i++)
+    {
+        bullets[i].isActive = false;
     }
 }
 
@@ -995,3 +1009,147 @@ int _sceneA::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             break;
     }
 }
+
+void _sceneA::advanceAndDrawBullets()
+{
+    for (int i = 0; i < TOTAL_BULLETS; i++)
+    {
+        if (!bullets[i].isActive
+            || bullets[i].lastMoveTicks + BULLET_TIMER_DELAY < globalTimer->getTicks())
+            continue;
+
+        // Advance bullet position
+        bullets[i].lastMoveTicks = globalTimer->getTicks();
+        bullets[i].t += BULLET_SPEED;
+        bullets[i].position.x = bullets[i].start.x + bullets[i].t * (bullets[i].stop.x - bullets[i].start.x);
+        bullets[i].position.y = bullets[i].start.y + bullets[i].t * (bullets[i].stop.y - bullets[i].start.y);
+        bullets[i].position.z = bullets[i].start.z + bullets[i].t * (bullets[i].stop.z - bullets[i].start.z);
+
+
+        // Draw bullet
+        glPushMatrix();
+            glColor3f(bullets[i].color.x, bullets[i].color.y, bullets[i].color.z);
+            glTranslatef(bullets[i].position.x, bullets[i].position.y, bullets[i].position.z);
+            glutSolidSphere(0.015, 40, 40);
+
+            glColor3f(1, 1, 1);
+        glPopMatrix();
+
+
+
+    }
+}
+
+void _sceneA::checkBulletCollision()
+{
+    for (int i = 0; i < TOTAL_BULLETS; i++)
+    {
+        if (!bullets[i].isActive) continue;
+
+        for (int j = 0; j < TOTAL_TOWERS; j++)
+        {
+            if (!towers[j].isActive) continue;
+
+            if (
+                bullets[i].position.x >= towers[j].xMin
+                && bullets[i].position.x <= towers[j].xMax
+                && bullets[i].position.y >= towers[j].yMin
+                && bullets[i].position.y <= towers[j].yMax
+                && bullets[i].position.z >= towers[j].zMin
+                && bullets[i].position.z <= towers[j].zMax
+                )
+            {
+                // Bullet has collided with a tower and causes damage.
+                bullets[i].isActive = false;
+                if(--towers[j].health <= 0)
+                {
+                    // tower has been destroyed
+                    towers[j].isActive = false;
+                }
+
+                cout << "Bullet #" << i << " collided with Tower #" << j << ". Current Tower Health: " << towers[j].health << " | " << towers[j].isActive << endl;
+            }
+        }
+    }
+}
+
+void _sceneA::checkAndUpdateEnemyTargets()
+{
+    for (int i = 0; i < TOTAL_OBSTACLES; i++)
+    {
+        if (obstacles[i].model->pathStep < 0) continue;
+
+        float ex = obstacles[i].model->pos.x;
+        float ez = obstacles[i].model->pos.z;
+
+        float closestDist = 9999.0f;
+        int closestEnemy = -1;
+
+        for (int j = 0; j < TOTAL_TOWERS; j++) {
+            if (!towers[j].isActive) continue;
+
+            float tx = (towers[j].xMin + towers[j].xMax) / 2.0f;
+            float tz = (towers[j].zMin + towers[j].zMax) / 2.0f;
+
+            float distSq = (ex - tx) * (ex - tx) + (ez - tz) * (ez - tz);
+            float range = 0.20f;
+
+            if (distSq <= range * range && distSq < closestDist) {
+                closestDist = distSq;
+                closestEnemy = j;
+            }
+        }
+
+        obstacles[i].targetEnemyIndex = closestEnemy;
+    }
+}
+
+void _sceneA::attackEnemyTargets()
+{
+    clock_t nextFireTicks;
+    int idx, bulletIdx;
+    for (int i = 0; i < TOTAL_OBSTACLES; i++)
+    {
+        bulletIdx = -1;
+        idx = obstacles[i].targetEnemyIndex;
+        nextFireTicks = obstacles[i].lastAttackTicks + OBSTACLE_FIRE_DELAY;
+        if (
+            idx == -1
+            || !towers[idx].isActive
+            || obstacles[i].model->pathStep < 0
+            || nextFireTicks > globalTimer->getTicks())
+            continue;
+
+        obstacles[i].lastAttackTicks = globalTimer->getTicks();
+        //towers[i].hasFirstAttack = true;
+        snds->playSoundSource(laserSoundSource);
+
+        for (int j = 0; j < TOTAL_BULLETS; j++)
+        {
+            if (!bullets[j].isActive)
+            {
+                bullets[j].isActive = true;
+                bullets[j].lastMoveTicks = globalTimer->getTicks();
+                bullets[j].t = 0;
+
+                bullets[j].start.x = bullets[j].position.x = obstacles[i].model->pos.x;
+                bullets[j].start.y = bullets[j].position.y = obstacles[i].model->pos.y;
+                bullets[j].start.z = bullets[j].position.z = obstacles[i].model->pos.z;
+
+                bullets[j].stop.x = (towers[idx].xMin + towers[idx].xMax ) / 2.0;
+                bullets[j].stop.y = (towers[idx].yMin + towers[idx].yMax ) / 2.0;
+                bullets[j].stop.z = (towers[idx].zMin + towers[idx].zMax ) / 2.0;
+
+                bullets[j].color.x = obstacles[i].model->bulletColor.x;
+                bullets[j].color.y = obstacles[i].model->bulletColor.y;
+                bullets[j].color.z = obstacles[i].model->bulletColor.z;
+
+                cout << "Bullet #" << j << "R:" << bullets[j].color.x << ", G:" << bullets[j].color.y << ", B:" << bullets[j].color.z << " | ";
+                break;
+            }
+        }
+
+        cout << "ENEMY " << i << " --> T " << idx << endl;
+    }
+}
+
