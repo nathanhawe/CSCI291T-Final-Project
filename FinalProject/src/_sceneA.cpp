@@ -3,7 +3,7 @@
 
 _sceneA::_sceneA()
 {
-    //ctor
+    istowerType = 0; //0 for tower, 1 for tesla
 
 }
 
@@ -24,6 +24,9 @@ _sceneA::~_sceneA()
 
     delete backgroundMusic;
     delete laserSoundSource;
+    delete electricSoundSource;
+
+    delete fort1;
 
     for (int i = 0; i < TOTAL_OBSTACLES; i++)
     {
@@ -72,6 +75,7 @@ GLint _sceneA::IniGL()
     roof_tex = textureLoader->loadImages("images/roof.jpg");
     dirt_tex = textureLoader->loadImages("images/dirt.jpg");
 
+
     // Load overlay images
     overlay1_notReady = textureLoader->loadImages("images/overlay/1-not_ready.png");
     overlay1_ready = textureLoader->loadImages("images/overlay/1-ready.png");
@@ -80,13 +84,18 @@ GLint _sceneA::IniGL()
     overlay3_disabled = textureLoader->loadImages("images/overlay/3-disabled.png");
 
 
+
+
     // Start background music
     snds->initSound();
     sky->skyBoxInit();
+    fort1->initFortassets();
     backgroundMusic = snds->playMusic(MUSIC_FILE);
     backgroundMusic->setVolume(0.15f);
     laserSoundSource = snds->loadSoundSource(SOUND_LASER);
     laserSoundSource->setDefaultVolume(0.30f);
+    electricSoundSource = snds->loadSoundSource(SOUND_ELECTRIC);
+    electricSoundSource->setDefaultVolume(0.30f);
 
     // Setup game state
     waveSize = WAVE_SIZE;
@@ -187,6 +196,14 @@ GLvoid _sceneA::renderScene()
         drawRoadHorizontal(0, 2, -0.15, 0.1);
         drawRoadHorizontal(0, 2, 0.15, 0.1);
 
+        glPushMatrix();
+        glTranslatef(-0.8f, 0.2f, 0.4f);
+        glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+        glScalef(0.002f, 0.002f, 0.002f);
+
+        fort1->drawfort();
+        glPopMatrix();
+
         glColor3f(1, 1, 1);
 
 
@@ -270,11 +287,13 @@ GLvoid _sceneA::renderScene()
             float towerWidth = towers[i].xMax - towers[i].xMin;
             float towerHeight = towers[i].yMax - towers[i].yMin;
 
-            drawTeslaTowerAt(posX, posY, posZ, towerWidth, towerHeight);
+            drawTowerAt(posX, posY, posZ, towerWidth, towerHeight);
+            //drawTeslaTowerAt(posX, posY, posZ, towerWidth, towerHeight);
         }
 
     checkAndUpdateEnemyTargets();
     attackEnemyTargets();
+
     checkAndUpdateTargets();
     attackTargets();
     drawLasers();
@@ -361,6 +380,8 @@ void _sceneA::drawTowerAt(float x, float y, float z, float width, float height)
 {
     glPushMatrix();
 
+    istowerType = 0;
+
     glTranslatef(x, y, z);
     glScalef(width / 2.5f, height / 20.0f, width / 2.5f); // Scale
 
@@ -426,22 +447,34 @@ void _sceneA::drawTowerAt(float x, float y, float z, float width, float height)
 void _sceneA::drawTeslaTowerAt(float x, float y, float z, float width, float height)
 {
     glPushMatrix();
+    istowerType = 1;
+
+    // glDisable(GL_LIGHTING);
+
     glTranslatef(x, y, z);
     glScalef(width / 2.0f, height / 6.0f, width / 2.0f);
 
     // Base
-    glColor3f(0.2f, 0.2f, 0.2f); // Dark metal
-    drawCylinder(1.0f, 1.0f, 2.0f, 16);
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glPushMatrix();
+        glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+        drawCylinder(1.0f, 1.0f, 1.0f, 16);
+    glPopMatrix();
 
     // Coil
     glTranslatef(0.0, 2.0, 0.0);
-    glColor3f(0.6f, 0.3f, 0.0f); // Copper coil
-    drawCylinder(0.3f, 0.3f, 3.0f, 16);
+    glColor3f(0.83f, 0.69f, 0.22f);
+    glPushMatrix();
+        glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+        drawCylinder(0.3f, 0.3f, 3.0f, 16);
+    glPopMatrix();
 
     // Top Sphere
     glTranslatef(0.0, 3.0, 0.0);
-    glColor3f(0.8f, 0.8f, 1.0f); // Glow effect
+    glColor3f(0.9f, 0.91f, 0.98f);
     glutSolidSphere(0.6, 16, 16);
+
+    //glEnable(GL_LIGHTING); // Re-enable if disabled
 
     glPopMatrix();
 }
@@ -489,7 +522,11 @@ void _sceneA::drawLasers()
 {
     glDisable(GL_LIGHTING);
     glLineWidth(2.5f);
-    glColor3f(1.0f, 0.0f, 0.0f); // Red laser
+    if (istowerType == 0) {
+            glColor3f(1.0f, 0.0f, 0.0f); // Red for regular tower
+        } else  {
+            glColor3f(0.2f, 0.5f, 0.9f);
+        }
     glBegin(GL_LINES);
     for (int i = 0; i < TOTAL_TOWERS; i++) {
         int idx = towers[i].targetEnemyIndex;
@@ -565,7 +602,11 @@ void _sceneA::attackTargets()
 
         towers[i].lastAttackTicks = globalTimer->getTicks();
         towers[i].hasFirstAttack = true;
+        if (istowerType == 0){
         snds->playSoundSource(laserSoundSource);
+        }else {
+        snds->playSoundSource(electricSoundSource);
+        }
 
         cout << "TOWER " << i << " --> " << idx;
 

@@ -12,6 +12,9 @@
 #include<_sounds.h>
 #include<_enemyFactory.h>
 #include<_skybox.h>
+#include<_objLoader.h>
+#include<_fort.h>
+
 
 #define WAVE_SIZE 10
 
@@ -30,6 +33,8 @@
 #define SOUND_SUCCESS "sounds/Magic Chime.mp3"
 #define SOUND_FAIL "sounds/Sad Trombone Wah Wah Wah Fail Sound - Sound Effect #35.mp3"
 #define SOUND_LASER "sounds/laser.mp3"
+#define SOUND_ELECTRIC "sounds/electric.mp3"
+
 #define SOUND_BULLET "sounds/laser.mp3"
 
 
@@ -111,6 +116,7 @@ class _sceneA: public _baseScene
         _sounds *snds = new _sounds();
         ISound *backgroundMusic;
         ISoundSource *laserSoundSource;
+        ISoundSource *electricSoundSource;
 
         _inputs *myInputs = new _inputs();
 
@@ -133,6 +139,10 @@ class _sceneA: public _baseScene
         // Models
         _enemyFactory *enemyFactory = new _enemyFactory();
 
+        _fort *fort1 = new _fort();
+
+
+
         struct enemyModel
         {
             _3dmodelloader *model;
@@ -145,6 +155,8 @@ class _sceneA: public _baseScene
         _3dmodelloader *collidedObstacleW = nullptr;
 
         enemyModel obstacles[TOTAL_OBSTACLES];
+
+        int istowerType;
 
         // Towers
         struct tower
