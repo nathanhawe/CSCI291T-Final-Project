@@ -35,10 +35,6 @@
 #define OBSTACLE_TIMER_DELAY 30
 #define OBSTACLE_FIRE_DELAY 3000
 
-
-#define TOWER_BASE_COST 3
-
-
 #define BULLET_SPEED 0.003
 #define BULLET_TIMER_DELAY 30
 
@@ -79,10 +75,10 @@ class _sceneA: public _baseScene
         //void checkAndUpdateEnemyTargets();
         //void attackEnemyTargets();
 
-        void createTowerAtPoint(int towerType, float x, float z);
-        void drawTowerAt(float x, float y, float z, float width, float height);
-        void drawTeslaTowerAt(float x, float y, float z, float width, float height);
-        void drawCylinder(float baseRadius, float topRadius, float height, int slices);
+        //void createTowerAtPoint(int towerType, float x, float z);
+        //void drawTowerAt(float x, float y, float z, float width, float height);
+        //void drawTeslaTowerAt(float x, float y, float z, float width, float height);
+        //void drawCylinder(float baseRadius, float topRadius, float height, int slices);
         void drawGround();
         void drawLasers();
         void checkAndUpdateTargets();
@@ -93,11 +89,8 @@ class _sceneA: public _baseScene
 
         void drawOverlay();
 
-        bool isPlacingTower = false;
-        bool isTowerPlaceable = false;
-
         int returnToStateAfterPause;
-        GLuint img_popup, img_defeat, img_victory, ground_tex, tower_tex, roof_tex, dirt_tex;
+        GLuint img_popup, img_defeat, img_victory, ground_tex, dirt_tex;
         GLuint overlay1_notReady, overlay1_ready, overlay1_selected;
         GLuint overlay2_disabled;
         GLuint overlay3_disabled;
@@ -119,7 +112,6 @@ class _sceneA: public _baseScene
         int spawnTimerDelayMinimumDuration = 3000;
         int spawnTimerDelayRange = 2500;
 
-        _textureLoader *textureLoader = new _textureLoader();
         vec3 roadRotation;
 
         _camera *camera = new _camera();

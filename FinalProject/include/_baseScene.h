@@ -4,6 +4,7 @@
 #include <_common.h>
 #include <_3dmodelloader.h>
 #include <_timer.h>
+#include <_textureloader.h>
 
 #define MAX_HITS 1
 #define TOTAL_TOWERS 10
@@ -17,6 +18,9 @@
 #define SOUND_ELECTRIC "sounds/electric.mp3"
 #define SOUND_BULLET "sounds/laser.mp3"
 
+#define TOWER_BASE_COST 3
+#define TOWER_BOMB_COST 2
+
 typedef struct enemyModel
 {
     _3dmodelloader *model;
@@ -27,7 +31,7 @@ typedef struct enemyModel
 
 typedef struct tower
 {
-    bool isActive;
+    bool isActive = false;
     int type;
     int health;
     float xMin;
@@ -60,11 +64,19 @@ class _baseScene
         _baseScene()
         {
             //ctor
+            textureLoader = new _textureLoader();
         }
 
         ~_baseScene()
         {
             delete globalTimer;
+            delete textureLoader;
+        }
+
+        void init()
+        {
+            tower_tex = textureLoader->loadImages("images/tower.jpg");
+            roof_tex = textureLoader->loadImages("images/roof.jpg");
         }
 
         GLvoid resizeWindow(GLsizei width, GLsizei height)
@@ -104,6 +116,255 @@ class _baseScene
             //cout << "Mouse Mappings (x,y,z): " << mouseX << ", " << mouseY << ", " << mouseZ << endl;
         }
 
+        /* COMMON DRAWING FUNCTIONS */
+
+        void createTowerAtPoint(int towerType, float x, float z, tower (&towers)[TOTAL_TOWERS])
+        {
+            if(!isPlacingTower || !isTowerPlaceable) return;
+
+            //find the first available tower slot
+            for (int i = 0; i < TOTAL_TOWERS; i++)
+            {
+                if (towers[i].isActive) continue;
+
+                towers[i].health = 4;
+                towers[i].isActive = true;
+                towers[i].type = towerType;
+
+                if (towerType == 0)
+                {
+                    towers[i].xMin = x - 0.05;
+                    towers[i].xMax = x + 0.05;
+                    towers[i].yMin = 0;
+                    towers[i].yMax = 0.15;
+                    towers[i].zMin = z - 0.05;
+                    towers[i].zMax = z + 0.05;
+                    towers[i].targetEnemyIndex = -1;
+                    towers[i].lastAttackTicks = globalTimer->getTicks();
+                    towers[i].hasFirstAttack = false;
+
+                    totalSpentResources += TOWER_BASE_COST;
+                    availableResources -= TOWER_BASE_COST;
+                }
+                else
+                {
+                    towers[i].xMin = x - 0.01;
+                    towers[i].xMax = x + 0.01;
+                    towers[i].yMin = 0;
+                    towers[i].yMax = 0.02;
+                    towers[i].zMin = z - 0.01;
+                    towers[i].zMax = z + 0.01;
+                    towers[i].targetEnemyIndex = -1;
+                    towers[i].lastAttackTicks = globalTimer->getTicks();
+                    towers[i].hasFirstAttack = false;
+
+                    totalSpentResources += TOWER_BOMB_COST;
+                    availableResources -= TOWER_BOMB_COST;
+                }
+
+
+                isPlacingTower = false;
+
+                debug();
+
+                return;
+            }
+
+            cout << "*** No available towers! ***" << endl;
+        }
+
+        void drawTowerAt(float x, float y, float z, float width, float height)
+        {
+            glPushMatrix();
+
+            glTranslatef(x, y, z);
+            glScalef(width / 2.5f, height / 20.0f, width / 2.5f); // Scale
+
+            glBindTexture(GL_TEXTURE_2D, tower_tex);
+
+            glBegin(GL_QUADS);
+            // Front
+            glNormal3f(0, 0, 1);
+            glTexCoord2f(0, 1); glVertex3f(-1.25f, 0.0f, 1.25f);
+            glTexCoord2f(0, 0); glVertex3f(-1.25f, 20.0f, 1.25f);
+            glTexCoord2f(1, 0); glVertex3f(1.25f, 20.0f, 1.25f);
+            glTexCoord2f(1, 1); glVertex3f(1.25f, 0.0f, 1.25f);
+            // Back
+            glNormal3f(0, 0, -1);
+            glTexCoord2f(0, 1); glVertex3f(-1.25f, 0.0f, -1.25f);
+            glTexCoord2f(0, 0); glVertex3f(-1.25f, 20.0f, -1.25f);
+            glTexCoord2f(1, 0); glVertex3f(1.25f, 20.0f, -1.25f);
+            glTexCoord2f(1, 1); glVertex3f(1.25f, 0.0f, -1.25f);
+            // Right
+            glNormal3f(1, 0, 0);
+            glTexCoord2f(0, 1); glVertex3f(1.25f, 0.0f, -1.25f);
+            glTexCoord2f(0, 0); glVertex3f(1.25f, 20.0f, -1.25f);
+            glTexCoord2f(1, 0); glVertex3f(1.25f, 20.0f, 1.25f);
+            glTexCoord2f(1, 1); glVertex3f(1.25f, 0.0f, 1.25f);
+            // Left
+            glNormal3f(-1, 0, 0);
+            glTexCoord2f(0, 1); glVertex3f(-1.25f, 0.0f, -1.25f);
+            glTexCoord2f(0, 0); glVertex3f(-1.25f, 20.0f, -1.25f);
+            glTexCoord2f(1, 0); glVertex3f(-1.25f, 20.0f, 1.25f);
+            glTexCoord2f(1, 1); glVertex3f(-1.25f, 0.0f, 1.25f);
+            glEnd();
+
+            // Draw roof
+            glBindTexture(GL_TEXTURE_2D, roof_tex);
+            glBegin(GL_TRIANGLES);
+            float apexY = 25.0f;
+            float apexX = 0.0f, apexZ = 0.0f;
+
+            glNormal3f(0, 0.5f, 0.5f);
+            glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
+            glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.25f, 20.0f, 1.25f);
+            glTexCoord2f(1.0f, 0.0f); glVertex3f(1.25f, 20.0f, 1.25f);
+
+            glNormal3f(0.5f, 0.5f, 0.0f);
+            glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
+            glTexCoord2f(0.0f, 0.0f); glVertex3f(1.25f, 20.0f, 1.25f);
+            glTexCoord2f(1.0f, 0.0f); glVertex3f(1.25f, 20.0f, -1.25f);
+
+            glNormal3f(0, 0.5f, -0.5f);
+            glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
+            glTexCoord2f(0.0f, 0.0f); glVertex3f(1.25f, 20.0f, -1.25f);
+            glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.25f, 20.0f, -1.25f);
+
+            glNormal3f(-0.5f, 0.5f, 0.0f);
+            glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
+            glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.25f, 20.0f, -1.25f);
+            glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.25f, 20.0f, 1.25f);
+            glEnd();
+
+            glPopMatrix();
+        }
+
+
+        void drawBombAt(float x, float y, float z, float width, float height)
+        {
+            glPushMatrix();
+
+            glTranslatef(x, y, z);
+            glScalef(width / 2.5f, height / 20.0f, width / 2.5f); // Scale
+
+            glBindTexture(GL_TEXTURE_2D, tower_tex);
+
+            glBegin(GL_QUADS);
+            // Front
+            glNormal3f(0, 0, 1);
+            glTexCoord2f(0, 1); glVertex3f(-1.25f, 0.0f, 1.25f);
+            glTexCoord2f(0, 0); glVertex3f(-1.25f, 20.0f, 1.25f);
+            glTexCoord2f(1, 0); glVertex3f(1.25f, 20.0f, 1.25f);
+            glTexCoord2f(1, 1); glVertex3f(1.25f, 0.0f, 1.25f);
+            // Back
+            glNormal3f(0, 0, -1);
+            glTexCoord2f(0, 1); glVertex3f(-1.25f, 0.0f, -1.25f);
+            glTexCoord2f(0, 0); glVertex3f(-1.25f, 20.0f, -1.25f);
+            glTexCoord2f(1, 0); glVertex3f(1.25f, 20.0f, -1.25f);
+            glTexCoord2f(1, 1); glVertex3f(1.25f, 0.0f, -1.25f);
+            // Right
+            glNormal3f(1, 0, 0);
+            glTexCoord2f(0, 1); glVertex3f(1.25f, 0.0f, -1.25f);
+            glTexCoord2f(0, 0); glVertex3f(1.25f, 20.0f, -1.25f);
+            glTexCoord2f(1, 0); glVertex3f(1.25f, 20.0f, 1.25f);
+            glTexCoord2f(1, 1); glVertex3f(1.25f, 0.0f, 1.25f);
+            // Left
+            glNormal3f(-1, 0, 0);
+            glTexCoord2f(0, 1); glVertex3f(-1.25f, 0.0f, -1.25f);
+            glTexCoord2f(0, 0); glVertex3f(-1.25f, 20.0f, -1.25f);
+            glTexCoord2f(1, 0); glVertex3f(-1.25f, 20.0f, 1.25f);
+            glTexCoord2f(1, 1); glVertex3f(-1.25f, 0.0f, 1.25f);
+            glEnd();
+
+            // Draw roof
+            glBindTexture(GL_TEXTURE_2D, roof_tex);
+            glBegin(GL_TRIANGLES);
+            float apexY = 25.0f;
+            float apexX = 0.0f, apexZ = 0.0f;
+
+            glNormal3f(0, 0.5f, 0.5f);
+            glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
+            glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.25f, 20.0f, 1.25f);
+            glTexCoord2f(1.0f, 0.0f); glVertex3f(1.25f, 20.0f, 1.25f);
+
+            glNormal3f(0.5f, 0.5f, 0.0f);
+            glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
+            glTexCoord2f(0.0f, 0.0f); glVertex3f(1.25f, 20.0f, 1.25f);
+            glTexCoord2f(1.0f, 0.0f); glVertex3f(1.25f, 20.0f, -1.25f);
+
+            glNormal3f(0, 0.5f, -0.5f);
+            glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
+            glTexCoord2f(0.0f, 0.0f); glVertex3f(1.25f, 20.0f, -1.25f);
+            glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.25f, 20.0f, -1.25f);
+
+            glNormal3f(-0.5f, 0.5f, 0.0f);
+            glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
+            glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.25f, 20.0f, -1.25f);
+            glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.25f, 20.0f, 1.25f);
+            glEnd();
+
+            glPopMatrix();
+        }
+
+        void drawTeslaTowerAt(float x, float y, float z, float width, float height)
+        {
+            glPushMatrix();
+
+            // glDisable(GL_LIGHTING);
+
+            glTranslatef(x, y, z);
+            glScalef(width / 2.0f, height / 6.0f, width / 2.0f);
+
+            // Base
+            glColor3f(0.0f, 0.0f, 0.0f);
+            glPushMatrix();
+                glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+                drawCylinder(1.0f, 1.0f, 1.0f, 16);
+            glPopMatrix();
+
+            // Coil
+            glTranslatef(0.0, 2.0, 0.0);
+            glColor3f(0.83f, 0.69f, 0.22f);
+            glPushMatrix();
+                glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+                drawCylinder(0.3f, 0.3f, 3.0f, 16);
+            glPopMatrix();
+
+            // Top Sphere
+            glTranslatef(0.0, 3.0, 0.0);
+            glColor3f(0.9f, 0.91f, 0.98f);
+            glutSolidSphere(0.6, 16, 16);
+
+            //glEnable(GL_LIGHTING); // Re-enable if disabled
+
+            glPopMatrix();
+        }
+
+        void drawCylinder(float baseRadius, float topRadius, float height, int slices)
+        {
+            GLUquadric* quad = gluNewQuadric();
+            gluQuadricNormals(quad, GLU_SMOOTH);
+            gluQuadricTexture(quad, GL_TRUE);
+
+            gluCylinder(quad, baseRadius, topRadius, height, slices, 1);
+
+            // Draw base cap
+            glPushMatrix();
+                glRotatef(180.0f, 1.0f, 0.0f, 0.0f);
+                gluDisk(quad, 0.0f, baseRadius, slices, 1);
+            glPopMatrix();
+
+            // Draw top cap
+            glPushMatrix();
+                glTranslatef(0.0f, 0.0f, height);
+                gluDisk(quad, 0.0f, topRadius, slices, 1);
+            glPopMatrix();
+
+            gluDeleteQuadric(quad);
+        }
+
+
+        /* Enemy Attacking Functions */
         void checkAndUpdateEnemyTargets(enemyModel (&obstacles)[TOTAL_OBSTACLES], tower (&towers)[TOTAL_TOWERS])
         {
             for (int i = 0; i < TOTAL_OBSTACLES; i++)
@@ -252,8 +513,10 @@ class _baseScene
             //cout << " Resources Available/Spent: " << availableResources << "/" << totalSpentResources << endl;
         }
 
+        GLuint tower_tex, roof_tex;
 
         _timer *globalTimer = new _timer();
+        _textureLoader *textureLoader;
 
         virtual GLint IniGL() = 0;
         virtual GLvoid renderScene() = 0;
@@ -263,6 +526,9 @@ class _baseScene
         int currentSceneState=0;
 
         GLdouble mouseX, mouseY, mouseZ;
+
+        bool isPlacingTower = false;
+        bool isTowerPlaceable = false;
 
     protected:
         vec2 dim;

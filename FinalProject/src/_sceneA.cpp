@@ -4,7 +4,6 @@
 _sceneA::_sceneA()
 {
     istowerType = 0; //0 for tower, 1 for tesla
-
 }
 
 _sceneA::~_sceneA()
@@ -18,7 +17,6 @@ _sceneA::~_sceneA()
     delete spawnTimer;
     delete transitionDelayTimer;
     delete globalTimer;
-    delete textureLoader;
     delete camera;
     delete enemyFactory;
 
@@ -38,6 +36,8 @@ _sceneA::~_sceneA()
 
 GLint _sceneA::IniGL()
 {
+    _baseScene::init();
+
     glClearColor(0.0,0.0,1.0,1.0);
     glClearDepth(1.0);
     glEnable(GL_DEPTH_TEST);
@@ -71,8 +71,6 @@ GLint _sceneA::IniGL()
     img_victory = textureLoader->loadImages("images/victory.png");
 
     ground_tex = textureLoader->loadImages("images/ground.jpg");
-    tower_tex = textureLoader->loadImages("images/tower.jpg");
-    roof_tex = textureLoader->loadImages("images/roof.jpg");
     dirt_tex = textureLoader->loadImages("images/dirt.jpg");
 
 
@@ -374,135 +372,6 @@ void _sceneA::drawRoadVertical(float zStart, float zEnd, float x, float width)
     glEnd();
 }
 
-
-
-void _sceneA::drawTowerAt(float x, float y, float z, float width, float height)
-{
-    glPushMatrix();
-
-    istowerType = 0;
-
-    glTranslatef(x, y, z);
-    glScalef(width / 2.5f, height / 20.0f, width / 2.5f); // Scale
-
-    glBindTexture(GL_TEXTURE_2D, tower_tex);
-
-    glBegin(GL_QUADS);
-    // Front
-    glNormal3f(0, 0, 1);
-    glTexCoord2f(0, 1); glVertex3f(-1.25f, 0.0f, 1.25f);
-    glTexCoord2f(0, 0); glVertex3f(-1.25f, 20.0f, 1.25f);
-    glTexCoord2f(1, 0); glVertex3f(1.25f, 20.0f, 1.25f);
-    glTexCoord2f(1, 1); glVertex3f(1.25f, 0.0f, 1.25f);
-    // Back
-    glNormal3f(0, 0, -1);
-    glTexCoord2f(0, 1); glVertex3f(-1.25f, 0.0f, -1.25f);
-    glTexCoord2f(0, 0); glVertex3f(-1.25f, 20.0f, -1.25f);
-    glTexCoord2f(1, 0); glVertex3f(1.25f, 20.0f, -1.25f);
-    glTexCoord2f(1, 1); glVertex3f(1.25f, 0.0f, -1.25f);
-    // Right
-    glNormal3f(1, 0, 0);
-    glTexCoord2f(0, 1); glVertex3f(1.25f, 0.0f, -1.25f);
-    glTexCoord2f(0, 0); glVertex3f(1.25f, 20.0f, -1.25f);
-    glTexCoord2f(1, 0); glVertex3f(1.25f, 20.0f, 1.25f);
-    glTexCoord2f(1, 1); glVertex3f(1.25f, 0.0f, 1.25f);
-    // Left
-    glNormal3f(-1, 0, 0);
-    glTexCoord2f(0, 1); glVertex3f(-1.25f, 0.0f, -1.25f);
-    glTexCoord2f(0, 0); glVertex3f(-1.25f, 20.0f, -1.25f);
-    glTexCoord2f(1, 0); glVertex3f(-1.25f, 20.0f, 1.25f);
-    glTexCoord2f(1, 1); glVertex3f(-1.25f, 0.0f, 1.25f);
-    glEnd();
-
-    // Draw roof
-    glBindTexture(GL_TEXTURE_2D, roof_tex);
-    glBegin(GL_TRIANGLES);
-    float apexY = 25.0f;
-    float apexX = 0.0f, apexZ = 0.0f;
-
-    glNormal3f(0, 0.5f, 0.5f);
-    glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
-    glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.25f, 20.0f, 1.25f);
-    glTexCoord2f(1.0f, 0.0f); glVertex3f(1.25f, 20.0f, 1.25f);
-
-    glNormal3f(0.5f, 0.5f, 0.0f);
-    glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
-    glTexCoord2f(0.0f, 0.0f); glVertex3f(1.25f, 20.0f, 1.25f);
-    glTexCoord2f(1.0f, 0.0f); glVertex3f(1.25f, 20.0f, -1.25f);
-
-    glNormal3f(0, 0.5f, -0.5f);
-    glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
-    glTexCoord2f(0.0f, 0.0f); glVertex3f(1.25f, 20.0f, -1.25f);
-    glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.25f, 20.0f, -1.25f);
-
-    glNormal3f(-0.5f, 0.5f, 0.0f);
-    glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
-    glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.25f, 20.0f, -1.25f);
-    glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.25f, 20.0f, 1.25f);
-    glEnd();
-
-    glPopMatrix();
-}
-
-void _sceneA::drawTeslaTowerAt(float x, float y, float z, float width, float height)
-{
-    glPushMatrix();
-    istowerType = 1;
-
-    // glDisable(GL_LIGHTING);
-
-    glTranslatef(x, y, z);
-    glScalef(width / 2.0f, height / 6.0f, width / 2.0f);
-
-    // Base
-    glColor3f(0.0f, 0.0f, 0.0f);
-    glPushMatrix();
-        glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
-        drawCylinder(1.0f, 1.0f, 1.0f, 16);
-    glPopMatrix();
-
-    // Coil
-    glTranslatef(0.0, 2.0, 0.0);
-    glColor3f(0.83f, 0.69f, 0.22f);
-    glPushMatrix();
-        glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
-        drawCylinder(0.3f, 0.3f, 3.0f, 16);
-    glPopMatrix();
-
-    // Top Sphere
-    glTranslatef(0.0, 3.0, 0.0);
-    glColor3f(0.9f, 0.91f, 0.98f);
-    glutSolidSphere(0.6, 16, 16);
-
-    //glEnable(GL_LIGHTING); // Re-enable if disabled
-
-    glPopMatrix();
-}
-
-void _sceneA::drawCylinder(float baseRadius, float topRadius, float height, int slices)
-{
-    GLUquadric* quad = gluNewQuadric();
-    gluQuadricNormals(quad, GLU_SMOOTH);
-    gluQuadricTexture(quad, GL_TRUE);
-
-    gluCylinder(quad, baseRadius, topRadius, height, slices, 1);
-
-    // Draw base cap
-    glPushMatrix();
-        glRotatef(180.0f, 1.0f, 0.0f, 0.0f);
-        gluDisk(quad, 0.0f, baseRadius, slices, 1);
-    glPopMatrix();
-
-    // Draw top cap
-    glPushMatrix();
-        glTranslatef(0.0f, 0.0f, height);
-        gluDisk(quad, 0.0f, topRadius, slices, 1);
-    glPopMatrix();
-
-    gluDeleteQuadric(quad);
-}
-
-
 void _sceneA::drawGround()
 {
     //glEnable(GL_TEXTURE_2D);
@@ -789,43 +658,6 @@ void _sceneA::advanceEnemies()
     }
 }
 
-void _sceneA::createTowerAtPoint(int towerType, float x, float z)
-{
-    if(!isPlacingTower || !isTowerPlaceable || availableResources < TOWER_BASE_COST) return;
-
-    //find the first available tower slot
-    for (int i = 0; i < TOTAL_TOWERS; i++)
-    {
-        if (towers[i].isActive) continue;
-
-        towers[i].health = 4;
-        towers[i].isActive = true;
-        towers[i].type = towerType;
-
-        towers[i].xMin = x - 0.05;
-        towers[i].xMax = x + 0.05;
-        towers[i].yMin = 0;
-        towers[i].yMax = 0.15;
-        towers[i].zMin = z - 0.05;
-        towers[i].zMax = z + 0.05;
-        towers[i].targetEnemyIndex = -1;
-        towers[i].lastAttackTicks = globalTimer->getTicks();
-        towers[i].hasFirstAttack = false;
-
-        totalSpentResources += TOWER_BASE_COST;
-        availableResources -= TOWER_BASE_COST;
-        isPlacingTower = false;
-
-        debug();
-
-        return;
-    }
-
-    cout << "*** No available towers! ***" << endl;
-}
-
-
-
 void _sceneA::transitionSceneState()
 {
 
@@ -1032,7 +864,7 @@ int _sceneA::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case WM_LBUTTONUP:
             if(currentSceneState == SCENE_RUNNING)
-                createTowerAtPoint(0, mouseX, mouseZ);
+                createTowerAtPoint(0, mouseX, mouseZ, towers);
 
             break;
 
