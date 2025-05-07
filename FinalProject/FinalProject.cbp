@@ -53,9 +53,11 @@
 		<Unit filename="include/_camera.h" />
 		<Unit filename="include/_common.h" />
 		<Unit filename="include/_enemyFactory.h" />
+		<Unit filename="include/_fort.h" />
 		<Unit filename="include/_inputs.h" />
 		<Unit filename="include/_lighting.h" />
 		<Unit filename="include/_model.h" />
+		<Unit filename="include/_objLoader.h" />
 		<Unit filename="include/_parallax.h" />
 		<Unit filename="include/_sceneA.h" />
 		<Unit filename="include/_sceneB.h" />
@@ -70,9 +72,11 @@
 		<Unit filename="src/_3dmodelloader.cpp" />
 		<Unit filename="src/_camera.cpp" />
 		<Unit filename="src/_enemyFactory.cpp" />
+		<Unit filename="src/_fort.cpp" />
 		<Unit filename="src/_inputs.cpp" />
 		<Unit filename="src/_lighting.cpp" />
 		<Unit filename="src/_model.cpp" />
+		<Unit filename="src/_objLoader.cpp" />
 		<Unit filename="src/_parallax.cpp" />
 		<Unit filename="src/_sceneA.cpp" />
 		<Unit filename="src/_sceneB.cpp" />
