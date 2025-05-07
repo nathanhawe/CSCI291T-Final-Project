@@ -78,6 +78,7 @@ class _baseScene
             tower_tex = textureLoader->loadImages("images/tower.jpg");
             roof_tex = textureLoader->loadImages("images/roof.jpg");
             ground_tex = textureLoader->loadImages("images/ground.jpg");
+            dirt_tex = textureLoader->loadImages("images/dirt.jpg");
         }
 
         GLvoid resizeWindow(GLsizei width, GLsizei height)
@@ -132,6 +133,35 @@ class _baseScene
             glEnd();
 
             //glDisable(GL_TEXTURE_2D);
+        }
+
+        void drawRoadHorizontal(float xStart, float xEnd, float z, float width)
+        {
+            float w = width / 2.0f;
+
+            glBindTexture(GL_TEXTURE_2D, dirt_tex);
+
+            glBegin(GL_POLYGON);
+                glTexCoord2f(0.0f, 0.0f); glVertex3f(xStart, 0, z - w);
+                glTexCoord2f(0.0f, 1.0f); glVertex3f(xStart, 0, z + w);
+                glTexCoord2f(1.0f, 1.0f); glVertex3f(xEnd, 0, z + w);
+                glTexCoord2f(1.0f, 0.0f); glVertex3f(xEnd, 0, z - w);
+            glEnd();
+        }
+
+
+        void drawRoadVertical(float zStart, float zEnd, float x, float width)
+        {
+            float w = width / 2.0f;
+
+            glBindTexture(GL_TEXTURE_2D, dirt_tex);
+
+            glBegin(GL_POLYGON);
+                glTexCoord2f(0.0f, 0.0f); glVertex3f(x - w, 0, zStart);
+                glTexCoord2f(0.0f, 1.0f); glVertex3f(x - w, 0, zEnd);
+                glTexCoord2f(1.0f, 1.0f); glVertex3f(x + w, 0, zEnd);
+                glTexCoord2f(1.0f, 0.0f); glVertex3f(x + w, 0, zStart);
+            glEnd();
         }
 
         void createTowerAtPoint(int towerType, float x, float z, tower (&towers)[TOTAL_TOWERS])
@@ -529,7 +559,7 @@ class _baseScene
             //cout << " Resources Available/Spent: " << availableResources << "/" << totalSpentResources << endl;
         }
 
-        GLuint tower_tex, roof_tex, ground_tex;
+        GLuint tower_tex, roof_tex, ground_tex, dirt_tex;
 
         _timer *globalTimer = new _timer();
         _textureLoader *textureLoader;

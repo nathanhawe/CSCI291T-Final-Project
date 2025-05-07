@@ -67,8 +67,6 @@ class _sceneA: public _baseScene
         _3dmodelloader* getAvailableObstacleModel();
         bool hasCollided();
 
-        void drawRoadHorizontal(float xStart, float xEnd, float z, float width);
-        void drawRoadVertical(float zStart, float zEnd, float x, float width);
         void drawPlacementCircle(float towerSize, float towerRange);
 
         void advanceEnemies();

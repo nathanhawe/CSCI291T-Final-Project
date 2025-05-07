@@ -70,8 +70,6 @@ GLint _sceneA::IniGL()
     img_defeat = textureLoader->loadImages("images/defeat.png");
     img_victory = textureLoader->loadImages("images/victory.png");
 
-    dirt_tex = textureLoader->loadImages("images/dirt.jpg");
-
 
     // Load overlay images
     overlay1_notReady = textureLoader->loadImages("images/overlay/1-not_ready.png");
@@ -339,36 +337,6 @@ void _sceneA::drawOverlay()
         glTexCoord2f(1, 0); glVertex3f(0.35, 1.00, -0.5);
     glEnd();
 
-}
-
-
-void _sceneA::drawRoadHorizontal(float xStart, float xEnd, float z, float width)
-{
-    float w = width / 2.0f;
-
-    glBindTexture(GL_TEXTURE_2D, dirt_tex);
-
-    glBegin(GL_POLYGON);
-        glTexCoord2f(0.0f, 0.0f); glVertex3f(xStart, 0, z - w);
-        glTexCoord2f(0.0f, 1.0f); glVertex3f(xStart, 0, z + w);
-        glTexCoord2f(1.0f, 1.0f); glVertex3f(xEnd, 0, z + w);
-        glTexCoord2f(1.0f, 0.0f); glVertex3f(xEnd, 0, z - w);
-    glEnd();
-}
-
-
-void _sceneA::drawRoadVertical(float zStart, float zEnd, float x, float width)
-{
-    float w = width / 2.0f;
-
-    glBindTexture(GL_TEXTURE_2D, dirt_tex);
-
-    glBegin(GL_POLYGON);
-        glTexCoord2f(0.0f, 0.0f); glVertex3f(x - w, 0, zStart);
-        glTexCoord2f(0.0f, 1.0f); glVertex3f(x - w, 0, zEnd);
-        glTexCoord2f(1.0f, 1.0f); glVertex3f(x + w, 0, zEnd);
-        glTexCoord2f(1.0f, 0.0f); glVertex3f(x + w, 0, zStart);
-    glEnd();
 }
 
 void _sceneA::drawLasers()
