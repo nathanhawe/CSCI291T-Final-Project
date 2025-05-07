@@ -72,25 +72,14 @@ class _sceneA: public _baseScene
         void drawPlacementCircle(float towerSize, float towerRange);
 
         void advanceEnemies();
-        //void checkAndUpdateEnemyTargets();
-        //void attackEnemyTargets();
 
-        //void createTowerAtPoint(int towerType, float x, float z);
-        //void drawTowerAt(float x, float y, float z, float width, float height);
-        //void drawTeslaTowerAt(float x, float y, float z, float width, float height);
-        //void drawCylinder(float baseRadius, float topRadius, float height, int slices);
-        void drawGround();
         void drawLasers();
         void checkAndUpdateTargets();
         void attackTargets();
-
-        //void advanceAndDrawBullets();
-        //void checkBulletCollision();
-
         void drawOverlay();
 
         int returnToStateAfterPause;
-        GLuint img_popup, img_defeat, img_victory, ground_tex, dirt_tex;
+        GLuint img_popup, img_defeat, img_victory, dirt_tex;
         GLuint overlay1_notReady, overlay1_ready, overlay1_selected;
         GLuint overlay2_disabled;
         GLuint overlay3_disabled;

@@ -70,7 +70,6 @@ GLint _sceneA::IniGL()
     img_defeat = textureLoader->loadImages("images/defeat.png");
     img_victory = textureLoader->loadImages("images/victory.png");
 
-    ground_tex = textureLoader->loadImages("images/ground.jpg");
     dirt_tex = textureLoader->loadImages("images/dirt.jpg");
 
 
@@ -370,21 +369,6 @@ void _sceneA::drawRoadVertical(float zStart, float zEnd, float x, float width)
         glTexCoord2f(1.0f, 1.0f); glVertex3f(x + w, 0, zEnd);
         glTexCoord2f(1.0f, 0.0f); glVertex3f(x + w, 0, zStart);
     glEnd();
-}
-
-void _sceneA::drawGround()
-{
-    //glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, ground_tex);
-
-    glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 0.0f); glVertex3f(-2, 0, -1);
-        glTexCoord2f(0.0f, 1.0f); glVertex3f(-2, 0,  1);
-        glTexCoord2f(1.0f, 1.0f); glVertex3f( 2, 0,  1);
-        glTexCoord2f(1.0f, 0.0f); glVertex3f( 2, 0, -1);
-    glEnd();
-
-    //glDisable(GL_TEXTURE_2D);
 }
 
 void _sceneA::drawLasers()

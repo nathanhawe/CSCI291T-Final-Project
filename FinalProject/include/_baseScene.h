@@ -77,6 +77,7 @@ class _baseScene
         {
             tower_tex = textureLoader->loadImages("images/tower.jpg");
             roof_tex = textureLoader->loadImages("images/roof.jpg");
+            ground_tex = textureLoader->loadImages("images/ground.jpg");
         }
 
         GLvoid resizeWindow(GLsizei width, GLsizei height)
@@ -117,6 +118,21 @@ class _baseScene
         }
 
         /* COMMON DRAWING FUNCTIONS */
+
+        void drawGround()
+        {
+            //glEnable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D, ground_tex);
+
+            glBegin(GL_QUADS);
+                glTexCoord2f(0.0f, 0.0f); glVertex3f(-2, 0, -1);
+                glTexCoord2f(0.0f, 1.0f); glVertex3f(-2, 0,  1);
+                glTexCoord2f(1.0f, 1.0f); glVertex3f( 2, 0,  1);
+                glTexCoord2f(1.0f, 0.0f); glVertex3f( 2, 0, -1);
+            glEnd();
+
+            //glDisable(GL_TEXTURE_2D);
+        }
 
         void createTowerAtPoint(int towerType, float x, float z, tower (&towers)[TOTAL_TOWERS])
         {
@@ -513,7 +529,7 @@ class _baseScene
             //cout << " Resources Available/Spent: " << availableResources << "/" << totalSpentResources << endl;
         }
 
-        GLuint tower_tex, roof_tex;
+        GLuint tower_tex, roof_tex, ground_tex;
 
         _timer *globalTimer = new _timer();
         _textureLoader *textureLoader;
