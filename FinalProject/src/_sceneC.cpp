@@ -72,7 +72,10 @@ GLint _sceneC::IniGL()
     overlay2_notReady = textureLoader->loadImages("images/overlay/2-not_ready.png");
     overlay2_ready = textureLoader->loadImages("images/overlay/2-ready.png");
     overlay2_selected = textureLoader->loadImages("images/overlay/2-selected.png");
-    overlay3_disabled = textureLoader->loadImages("images/overlay/3-disabled.png");
+    overlay3_notReady = textureLoader->loadImages("images/overlay/3-not_ready.png");
+    overlay3_ready = textureLoader->loadImages("images/overlay/3-ready.png");
+    overlay3_selected = textureLoader->loadImages("images/overlay/3-selected.png");
+
 
 
     // Start background music
@@ -85,13 +88,14 @@ GLint _sceneC::IniGL()
     waveSize = WAVE_SIZE;
     totalEnemiesSpawned = 0;
     enemiesDefeatedCount = 0;
-    availableResources = TOWER_BASE_COST + (2 * TOWER_BOMB_COST);
-    totalSpentResources = -2 * TOWER_BOMB_COST;
+    availableResources = TOWER_BASE_COST * 2 + (2 * TOWER_BOMB_COST) + TOWER_TESLA_COST;
+    totalSpentResources = -2 * TOWER_BOMB_COST - TOWER_TESLA_COST;
 
     // Load demo bombs
     isTowerPlaceable = true;
-    isPlacingTower = true; createTowerAtPoint(1, -1, 0, towers);
-    isPlacingTower = true; createTowerAtPoint(1, -1, 0.15, towers);
+    isPlacingTower = true; createTowerAtPoint(1, 0, -0.50, towers);
+    isPlacingTower = true; createTowerAtPoint(1, 0, -0.40, towers);
+    isPlacingTower = true; createTowerAtPoint(2, 0, 0, towers);
 
     return true;
 }
@@ -205,7 +209,11 @@ GLvoid _sceneC::renderScene()
         if(currentSceneState == SCENE_RUNNING)
         {
             advanceEnemies();
-            drawPlacementCircle(0.05, 0.18);
+            if(placingTowerType == 2)
+            {
+                drawPlacementCircle(0.05, 0.27);
+            }
+            else drawPlacementCircle(0.05, 0.18);
             advanceAndDrawBullets(bullets, BULLET_TIMER_DELAY, BULLET_SPEED);
             checkBulletCollision(bullets, towers);
         }
@@ -272,7 +280,20 @@ GLvoid _sceneC::renderScene()
         {
             if (!towers[i].isActive) continue;
 
-            if (towers[i].type == 1)
+            if (towers[i].type == 0)
+            {
+                // Calculate tower center position
+                float posX = (towers[i].xMin + towers[i].xMax) / 2.0f;
+                float posY = towers[i].yMin; // base Y
+                float posZ = (towers[i].zMin + towers[i].zMax) / 2.0f;
+
+                // Calculate size (used for scaling)
+                float towerWidth = towers[i].xMax - towers[i].xMin;
+                float towerHeight = towers[i].yMax - towers[i].yMin;
+
+                drawTowerAt(posX, posY, posZ, towerWidth, towerHeight);
+            }
+            else if (towers[i].type == 1)
             {
                 // Calculate tower center position
                 float posX = (towers[i].xMin + towers[i].xMax) / 2.0f;
@@ -285,7 +306,7 @@ GLvoid _sceneC::renderScene()
 
                 drawBombAt(posX, posY, posZ, towerWidth, towerHeight);
             }
-            else
+            else if (towers[i].type == 2)
             {
                 // Calculate tower center position
                 float posX = (towers[i].xMin + towers[i].xMax) / 2.0f;
@@ -296,7 +317,7 @@ GLvoid _sceneC::renderScene()
                 float towerWidth = towers[i].xMax - towers[i].xMin;
                 float towerHeight = towers[i].yMax - towers[i].yMin;
 
-                drawTowerAt(posX, posY, posZ, towerWidth, towerHeight);
+                drawTeslaTowerAt(posX, posY, posZ, towerWidth, towerHeight);
             }
         }
 
@@ -353,7 +374,18 @@ void _sceneC::drawOverlay()
         glTexCoord2f(1, 0); glVertex3f(0.075, 1.00, -0.5);
     glEnd();
 
-    glBindTexture(GL_TEXTURE_2D, overlay3_disabled);
+     if(isPlacingTower && placingTowerType == 2)
+    {
+        glBindTexture(GL_TEXTURE_2D, overlay3_selected);
+    }
+    else if (availableResources >= TOWER_TESLA_COST)
+    {
+        glBindTexture(GL_TEXTURE_2D, overlay3_ready);
+    }
+    else
+    {
+        glBindTexture(GL_TEXTURE_2D, overlay3_notReady);
+    }
     glBegin(GL_POLYGON);
         glTexCoord2f(0, 0); glVertex3f(0.2, 1.00, -0.5);
         glTexCoord2f(0, 1); glVertex3f(0.2, 0.95, 0);
@@ -385,7 +417,7 @@ void _sceneC::checkAndUpdateTargets()
             float ez = obstacles[j].model->pos.z;
 
             float distSq = (ex - tx) * (ex - tx) + (ez - tz) * (ez - tz);
-            float range = 0.25f;
+            float range = towers[i].type == 0 ? 0.25f : 0.375f;
 
             if (distSq <= range * range && distSq < closestDist) {
                 closestDist = distSq;
@@ -404,7 +436,7 @@ void _sceneC::attackTargets()
     for (int i = 0; i < TOTAL_TOWERS; i++)
     {
         idx = towers[i].targetEnemyIndex;
-        nextFireTicks = towers[i].lastAttackTicks + TOWER_FIRE_DELAY;
+        nextFireTicks = towers[i].lastAttackTicks + (towers[i].type == 2 ? 2.5 * TOWER_FIRE_DELAY : TOWER_FIRE_DELAY);
         if (
             idx == -1
             || !towers[i].isActive
@@ -905,8 +937,8 @@ void _sceneC::reset()
     enemiesDefeatedCount = 0;
     totalEnemiesSpawned = 0;
     playerHitCount = 0;
-    availableResources = TOWER_BASE_COST + (2 * TOWER_BOMB_COST);
-    totalSpentResources = -2 * TOWER_BOMB_COST;
+    availableResources = TOWER_BASE_COST * 2 + (2 * TOWER_BOMB_COST) + TOWER_TESLA_COST;
+    totalSpentResources = -2 * TOWER_BOMB_COST - TOWER_TESLA_COST;
 
     currentSceneState = SCENE_START;
     victoryTimer->reset();
@@ -929,8 +961,9 @@ void _sceneC::reset()
 
     // Load demo bombs
     isTowerPlaceable = true;
-    isPlacingTower = true; createTowerAtPoint(1, -1, 0, towers);
-    isPlacingTower = true; createTowerAtPoint(1, -1, 0.15, towers);
+    isPlacingTower = true; createTowerAtPoint(1, 0, -0.50, towers);
+    isPlacingTower = true; createTowerAtPoint(1, 0, -0.40, towers);
+    isPlacingTower = true; createTowerAtPoint(2, 0, 0, towers);
 }
 
 
@@ -982,6 +1015,12 @@ int _sceneC::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 {
                     isPlacingTower = true;
                     placingTowerType = 1;
+                }
+
+                if(wParam == 51 && availableResources >= TOWER_TESLA_COST) // 3 on keyboard
+                {
+                    isPlacingTower = true;
+                    placingTowerType = 2;
                 }
             }
             else

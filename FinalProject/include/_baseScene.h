@@ -7,9 +7,9 @@
 #include <_textureloader.h>
 #include <_sounds.h>
 
-#define MAX_HITS 1
+#define MAX_HITS 0
 #define TOTAL_TOWERS 10
-#define TOTAL_OBSTACLES 10
+#define TOTAL_OBSTACLES 20
 #define TOTAL_BULLETS 250
 
 #define SOUND_COLLISION_FILE "sounds/Glass Windows Breaking.mp3"
@@ -21,6 +21,7 @@
 
 #define TOWER_BASE_COST 3
 #define TOWER_BOMB_COST 2
+#define TOWER_TESLA_COST 5
 
 typedef struct enemyModel
 {
@@ -243,7 +244,7 @@ class _baseScene
                     totalSpentResources += TOWER_BASE_COST;
                     availableResources -= TOWER_BASE_COST;
                 }
-                else
+                else if (towerType == 1)
                 {
                     towers[i].xMin = x - 0.01;
                     towers[i].xMax = x + 0.01;
@@ -257,6 +258,21 @@ class _baseScene
 
                     totalSpentResources += TOWER_BOMB_COST;
                     availableResources -= TOWER_BOMB_COST;
+                }
+                else
+                {
+                    towers[i].xMin = x - 0.05;
+                    towers[i].xMax = x + 0.05;
+                    towers[i].yMin = 0;
+                    towers[i].yMax = 0.15;
+                    towers[i].zMin = z - 0.05;
+                    towers[i].zMax = z + 0.05;
+                    towers[i].targetEnemyIndex = -1;
+                    towers[i].lastAttackTicks = globalTimer->getTicks();
+                    towers[i].hasFirstAttack = false;
+
+                    totalSpentResources += TOWER_TESLA_COST;
+                    availableResources -= TOWER_TESLA_COST;
                 }
 
 
