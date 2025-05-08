@@ -176,24 +176,29 @@ GLvoid _sceneC::renderScene()
         drawGround();
 
 
-        drawRoadHorizontal(-2, -1, 0, 0.1);
-        drawRoadHorizontal(1, 2, 0, 0.1);
-        drawRoadHorizontal(-1, 1, 0.5, 0.1);
+        drawRoadHorizontal(-0.40,  0.40, -0.25, 0.1);
 
-        drawRoadVertical(-1, 0.55, -1, 0.1);
-        drawRoadVertical(-1, 0.55, 1, 0.1);
-        drawRoadVertical(0.5, 1, 0, 0.1);
+        drawRoadHorizontal(-2.00, -0.35,  0.25, 0.1);
+        drawRoadHorizontal( 0.35,  2.00,  0.25, 0.1);
 
-        // Draw the fort
-        glPushMatrix();
-        glTranslatef(-0.8f, 0.2f, 0.4f);
-        glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
-        glScalef(0.002f, 0.002f, 0.002f);
+        drawRoadHorizontal(-2.00, -0.15,  0.60, 0.1);
+        drawRoadHorizontal( 0.15,  2.00,  0.60, 0.1);
 
-        //fort1->drawfort();
-        glPopMatrix();
+        drawRoadVertical(-1.00, 0.25, -1.30, 0.1);
+        drawRoadVertical(-1.00, 0.25,  1.30, 0.1);
 
-        glColor3f(1, 1, 1);
+        drawRoadVertical(0.60, 1.00, -0.60, 0.1);
+        drawRoadVertical(0.60, 1.00,  0.60, 0.1);
+
+        drawRoadVertical(0.30, -0.25, -0.35, 0.1);
+        drawRoadVertical(0.30, -0.25,  0.35, 0.1);
+
+        drawRoadVertical(0.65, -0.25, -0.15, 0.1);
+        drawRoadVertical(0.65, -0.25,  0.15, 0.1);
+
+        drawRoadVertical(-0.25, -0.75, 0, 0.1);
+
+        //glColor3f(1, 1, 1);
 
 
         // Advance enemies
@@ -530,6 +535,31 @@ void _sceneC::advanceEnemies()
 
         if (obstacles[i].model->lastMovementTime + OBSTACLE_TIMER_DELAY > globalTimer->getTicks()) continue;
         obstacles[i].model->lastMovementTime = globalTimer->getTicks();
+
+
+        /*
+                drawRoadHorizontal(-0.40,  0.40, -0.25, 0.1);
+
+        drawRoadHorizontal(-2.00, -0.35,  0.25, 0.1);
+        drawRoadHorizontal( 0.35,  2.00,  0.25, 0.1);
+
+        drawRoadHorizontal(-2.00, -0.15,  0.60, 0.1);
+        drawRoadHorizontal( 0.15,  2.00,  0.60, 0.1);
+
+        drawRoadVertical(-1.00, 0.25, -1.30, 0.1);
+        drawRoadVertical(-1.00, 0.25,  1.30, 0.1);
+
+        drawRoadVertical(0.60, 1.00, -0.60, 0.1);
+        drawRoadVertical(0.60, 1.00,  0.60, 0.1);
+
+        drawRoadVertical(0.30, -0.25, -0.35, 0.1);
+        drawRoadVertical(0.30, -0.25,  0.35, 0.1);
+
+        drawRoadVertical(0.65, -0.25, -0.15, 0.1);
+        drawRoadVertical(0.65, -0.25,  0.15, 0.1);
+
+        drawRoadVertical(-0.25, -0.75, 0, 0.1);
+        */
 
         if(obstacles[i].model->path == 0)
         {
