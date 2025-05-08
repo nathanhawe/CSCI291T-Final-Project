@@ -448,7 +448,12 @@ void _sceneC::attackTargets()
         towers[i].hasFirstAttack = true;
         if (towers[i].type == 0){
             snds->playSoundSource(laserSoundSource);
-        }else {
+        }
+        else if (towers[i].type == 1)
+        {
+            snds->playSoundSource(explosionSoundSource);
+        }
+        else {
             snds->playSoundSource(electricSoundSource);
         }
 

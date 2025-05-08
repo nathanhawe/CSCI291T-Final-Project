@@ -18,6 +18,7 @@
 #define SOUND_LASER "sounds/laser.mp3"
 #define SOUND_ELECTRIC "sounds/electric.mp3"
 #define SOUND_BULLET "sounds/laser.mp3"
+#define SOUND_EXPLOSION "sounds/Big Explosion Distant.mp3"
 
 #define TOWER_BASE_COST 3
 #define TOWER_BOMB_COST 2
@@ -77,6 +78,7 @@ class _baseScene
             delete backgroundMusic;
             delete laserSoundSource;
             delete electricSoundSource;
+            delete explosionSoundSource;
         }
 
         void init()
@@ -91,6 +93,8 @@ class _baseScene
             laserSoundSource->setDefaultVolume(0.30f);
             electricSoundSource = snds->loadSoundSource(SOUND_ELECTRIC);
             electricSoundSource->setDefaultVolume(0.30f);
+            explosionSoundSource = snds->loadSoundSource(SOUND_EXPLOSION);
+            explosionSoundSource->setDefaultVolume(0.50f);
         }
 
         GLvoid resizeWindow(GLsizei width, GLsizei height)
@@ -646,7 +650,8 @@ class _baseScene
         _sounds *snds = new _sounds();
         ISound *backgroundMusic;
         ISoundSource *laserSoundSource;
-        ISoundSource *electricSoundSource;;
+        ISoundSource *electricSoundSource;
+        ISoundSource *explosionSoundSource;
 
     protected:
         vec2 dim;
