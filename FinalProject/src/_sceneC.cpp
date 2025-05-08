@@ -537,65 +537,50 @@ void _sceneC::advanceEnemies()
         obstacles[i].model->lastMovementTime = globalTimer->getTicks();
 
 
-        /*
-                drawRoadHorizontal(-0.40,  0.40, -0.25, 0.1);
-
-        drawRoadHorizontal(-2.00, -0.35,  0.25, 0.1);
-        drawRoadHorizontal( 0.35,  2.00,  0.25, 0.1);
-
-        drawRoadHorizontal(-2.00, -0.15,  0.60, 0.1);
-        drawRoadHorizontal( 0.15,  2.00,  0.60, 0.1);
-
-        drawRoadVertical(-1.00, 0.25, -1.30, 0.1);
-        drawRoadVertical(-1.00, 0.25,  1.30, 0.1);
-
-        drawRoadVertical(0.60, 1.00, -0.60, 0.1);
-        drawRoadVertical(0.60, 1.00,  0.60, 0.1);
-
-        drawRoadVertical(0.30, -0.25, -0.35, 0.1);
-        drawRoadVertical(0.30, -0.25,  0.35, 0.1);
-
-        drawRoadVertical(0.65, -0.25, -0.15, 0.1);
-        drawRoadVertical(0.65, -0.25,  0.15, 0.1);
-
-        drawRoadVertical(-0.25, -0.75, 0, 0.1);
-        */
-
         if(obstacles[i].model->path == 0)
         {
             switch(obstacles[i].model->pathStep)
             {
                 case 0:
-                    obstacles[i].model->FaceRight();
-                    obstacles[i].model->pos.x += OBSTACLE_SPEED;
+                    obstacles[i].model->FaceDown();
+                    obstacles[i].model->pos.z += OBSTACLE_SPEED;
 
-                    if(obstacles[i].model->pos.x >= -1)
+                    if(obstacles[i].model->pos.z >= 0.25)
                         obstacles[i].model->pathStep = 1;
 
                     break;
 
                 case 1:
-                    obstacles[i].model->FaceDown();
-                    obstacles[i].model->pos.z += OBSTACLE_SPEED;
+                    obstacles[i].model->FaceRight();
+                    obstacles[i].model->pos.x += OBSTACLE_SPEED;
 
-                    if(obstacles[i].model->pos.z >= 0.5)
+                    if(obstacles[i].model->pos.x >= -0.35)
                         obstacles[i].model->pathStep = 2;
 
                     break;
 
                 case 2:
-                    obstacles[i].model->FaceRight();
-                    obstacles[i].model->pos.x += OBSTACLE_SPEED;
+                    obstacles[i].model->FaceUp();
+                    obstacles[i].model->pos.z -= OBSTACLE_SPEED;
 
-                    if(obstacles[i].model->pos.x >= 0)
+                    if(obstacles[i].model->pos.z <= -0.25)
                         obstacles[i].model->pathStep = 3;
 
                     break;
                 case 3:
-                    obstacles[i].model->FaceDown();
-                    obstacles[i].model->pos.z += OBSTACLE_SPEED;
+                    obstacles[i].model->FaceRight();
+                    obstacles[i].model->pos.x += OBSTACLE_SPEED;
 
-                    if(obstacles[i].model->pos.z >= 1)
+                    if(obstacles[i].model->pos.x >= 0)
+                        obstacles[i].model->pathStep = 4;
+
+                    break;
+
+                case 4:
+                    obstacles[i].model->FaceUp();
+                    obstacles[i].model->pos.z -= OBSTACLE_SPEED;
+
+                    if(obstacles[i].model->pos.z <= -0.75)
                     {
                         obstacles[i].model->pathStep = -1;
 
@@ -604,23 +589,69 @@ void _sceneC::advanceEnemies()
                     }
             }
         }
-        else if (obstacles[i].model->path == 1)
+        else if(obstacles[i].model->path == 1)
         {
-            switch(obstacles[i].model->pathStep)
+            obstacles[i].model->path = 0;
+            obstacles[i].model->pathStep = 1;
+        }
+        else if(obstacles[i].model->path == 2)
+        {
+            if (obstacles[i].model->pos.x >= -0.15)
             {
-                case 0:
-                    obstacles[i].model->FaceDown();
-                    obstacles[i].model->pos.z += OBSTACLE_SPEED;
-
-                    if(obstacles[i].model->pos.z >= 0.5)
-                    {
-                        obstacles[i].model->path = 0;
-                        obstacles[i].model->pathStep = 2;
-                    }
-                    break;
+                obstacles[i].model->path = 0;
+                obstacles[i].model->pathStep = 2;
+            }
+            else
+            {
+                obstacles[i].model->FaceRight();
+                obstacles[i].model->pos.x += OBSTACLE_SPEED;
             }
         }
-        else if (obstacles[i].model->path == 2)
+        else if(obstacles[i].model->path == 3)
+        {
+            if (obstacles[i].model->pos.z <= 0.6)
+            {
+                obstacles[i].model->path = 2;
+                obstacles[i].model->pathStep = 0;
+            }
+            else
+            {
+                obstacles[i].model->FaceUp();
+                obstacles[i].model->pos.z -= OBSTACLE_SPEED;
+            }
+        }
+        else if(obstacles[i].model->path == 4)
+        {
+            if (obstacles[i].model->pos.z <= 0.6)
+            {
+                obstacles[i].model->path = 5;
+                obstacles[i].model->pathStep = 0;
+            }
+            else
+            {
+                obstacles[i].model->FaceUp();
+                obstacles[i].model->pos.z -= OBSTACLE_SPEED;
+            }
+        }
+        else if(obstacles[i].model->path == 5)
+        {
+            if (obstacles[i].model->pos.x <= 0.15)
+            {
+                obstacles[i].model->path = 7;
+                obstacles[i].model->pathStep = 2;
+            }
+            else
+            {
+                obstacles[i].model->FaceLeft();
+                obstacles[i].model->pos.x -= OBSTACLE_SPEED;
+            }
+        }
+        else if(obstacles[i].model->path == 6)
+        {
+            obstacles[i].model->path = 7;
+            obstacles[i].model->pathStep = 1;
+        }
+        else if(obstacles[i].model->path == 7)
         {
             switch(obstacles[i].model->pathStep)
             {
@@ -628,7 +659,7 @@ void _sceneC::advanceEnemies()
                     obstacles[i].model->FaceDown();
                     obstacles[i].model->pos.z += OBSTACLE_SPEED;
 
-                    if(obstacles[i].model->pos.z >= 0.5)
+                    if(obstacles[i].model->pos.z >= 0.25)
                         obstacles[i].model->pathStep = 1;
 
                     break;
@@ -637,27 +668,28 @@ void _sceneC::advanceEnemies()
                     obstacles[i].model->FaceLeft();
                     obstacles[i].model->pos.x -= OBSTACLE_SPEED;
 
-                    if(obstacles[i].model->pos.x <= 0)
-                    {
-                        obstacles[i].model->path = 0;
-                        obstacles[i].model->pathStep = 3;
-                    }
+                    if(obstacles[i].model->pos.x <= 0.35)
+                        obstacles[i].model->pathStep = 2;
 
                     break;
-            }
-        }
-        else if (obstacles[i].model->path == 3)
-        {
-            switch(obstacles[i].model->pathStep)
-            {
-                case 0:
+
+                case 2:
+                    obstacles[i].model->FaceUp();
+                    obstacles[i].model->pos.z -= OBSTACLE_SPEED;
+
+                    if(obstacles[i].model->pos.z <= -0.25)
+                        obstacles[i].model->pathStep = 3;
+
+                    break;
+
+                case 3:
                     obstacles[i].model->FaceLeft();
                     obstacles[i].model->pos.x -= OBSTACLE_SPEED;
 
-                    if(obstacles[i].model->pos.x <= 1)
+                    if(obstacles[i].model->pos.x <= 0)
                     {
-                        obstacles[i].model->path = 2;
-                        obstacles[i].model->pathStep = 0;
+                        obstacles[i].model->path = 0;
+                        obstacles[i].model->pathStep = 4;
                     }
 
                     break;
@@ -719,7 +751,7 @@ void _sceneC::spawnObstacles()
     if(totalEnemiesSpawned < WAVE_SIZE && spawnTimer->getTicks() >= spawnTimerDelayMs)
     {
         // A new obstacle can be spawned
-        int spawnLocation = (rand() % 100);
+        int spawnLocation = (rand() % 80);
 
 
         _3dmodelloader *obj1 = getAvailableObstacleModel();
@@ -730,29 +762,53 @@ void _sceneC::spawnObstacles()
         else
         {
 
-            if (spawnLocation < 25)
+            if (spawnLocation < 10)
             {
-                obj1->pos.x = -2;
-                obj1->pos.z = 0;
+                obj1->pos.x = -1.3;
+                obj1->pos.z = -1.0;
                 obj1->path = 0;
+            }
+            else if (spawnLocation < 20)
+            {
+                obj1->pos.x = -2.0;
+                obj1->pos.z = 0.25;
+                obj1->path = 1;
+            }
+            else if (spawnLocation < 30)
+            {
+                obj1->pos.x = -2.0;
+                obj1->pos.z = 0.6;
+                obj1->path = 2;
+            }
+            else if (spawnLocation < 40)
+            {
+                obj1->pos.x = -0.6;
+                obj1->pos.z = 1;
+                obj1->path = 3;
             }
             else if (spawnLocation < 50)
             {
-                obj1->pos.x = -1;
-                obj1->pos.z = -1;
-                obj1->path = 1;
+                obj1->pos.x = 0.6;
+                obj1->pos.z = 1;
+                obj1->path = 4;
             }
-            else if (spawnLocation < 75)
+            else if (spawnLocation < 60)
             {
-                obj1->pos.x = 1;
-                obj1->pos.z = -1;
-                obj1->path = 2;
+                obj1->pos.x = 2.0;
+                obj1->pos.z = 0.6;
+                obj1->path = 5;
+            }
+            else if (spawnLocation < 70)
+            {
+                obj1->pos.x = 2.0;
+                obj1->pos.z = 0.25;
+                obj1->path = 6;
             }
             else
             {
-                obj1->pos.x = 2;
-                obj1->pos.z = 0;
-                obj1->path = 3;
+                obj1->pos.x = 1.3;
+                obj1->pos.z = -1.0;
+                obj1->path = 7;
             }
 
             obj1->pathStep = 0;
