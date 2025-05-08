@@ -6,6 +6,7 @@ _sceneManager::_sceneManager()
     sceneLanding = new _sceneLanding();
     sceneA = new _sceneA();
     sceneB = new _sceneB();
+    sceneC = new _sceneC();
     activeScene = sceneLanding;
 
 }
@@ -16,6 +17,7 @@ _sceneManager::~_sceneManager()
     delete sceneLanding;
     delete sceneA;
     delete sceneB;
+    delete sceneC;
 }
 
 GLint _sceneManager::init()
@@ -81,7 +83,7 @@ void _sceneManager::switchActiveScene()
             activeScene->resizeWindow(dimension.x, dimension.y);
             cout << "Manager: Switched to Scene B" << endl;
         }
-        /*else if (activeScene == sceneB)
+        else if (activeScene == sceneB)
         {
             if(!hasLoadedGameScene[2])
             {
@@ -94,7 +96,7 @@ void _sceneManager::switchActiveScene()
             activeScene->resizeWindow(dimension.x, dimension.y);
             cout << "Manager: Switched to Scene C" << endl;
 
-        }*/
+        }
         else
         {
             // If we don't have logic to exit the current scene, return to the menu
