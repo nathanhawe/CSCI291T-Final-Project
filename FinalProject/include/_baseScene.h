@@ -7,9 +7,9 @@
 #include <_textureloader.h>
 #include <_sounds.h>
 
-#define MAX_HITS 1
+#define MAX_HITS 0
 #define TOTAL_TOWERS 10
-#define TOTAL_OBSTACLES 10
+#define TOTAL_OBSTACLES 20
 #define TOTAL_BULLETS 250
 
 #define SOUND_COLLISION_FILE "sounds/Glass Windows Breaking.mp3"
@@ -17,10 +17,12 @@
 #define SOUND_FAIL "sounds/Sad Trombone Wah Wah Wah Fail Sound - Sound Effect #35.mp3"
 #define SOUND_LASER "sounds/laser.mp3"
 #define SOUND_ELECTRIC "sounds/electric.mp3"
-#define SOUND_BULLET "sounds/laser.mp3"
+#define SOUND_BULLET "sounds/Howitzer Cannon Fire.mp3"
+#define SOUND_EXPLOSION "sounds/Big Explosion Distant.mp3"
 
 #define TOWER_BASE_COST 3
 #define TOWER_BOMB_COST 2
+#define TOWER_TESLA_COST 5
 
 typedef struct enemyModel
 {
@@ -76,6 +78,8 @@ class _baseScene
             delete backgroundMusic;
             delete laserSoundSource;
             delete electricSoundSource;
+            delete explosionSoundSource;
+            delete bulletSoundSource;
         }
 
         void init()
@@ -90,6 +94,10 @@ class _baseScene
             laserSoundSource->setDefaultVolume(0.30f);
             electricSoundSource = snds->loadSoundSource(SOUND_ELECTRIC);
             electricSoundSource->setDefaultVolume(0.30f);
+            explosionSoundSource = snds->loadSoundSource(SOUND_EXPLOSION);
+            explosionSoundSource->setDefaultVolume(0.50f);
+            bulletSoundSource = snds->loadSoundSource(SOUND_BULLET);
+            bulletSoundSource->setDefaultVolume(1.0f);
         }
 
         GLvoid resizeWindow(GLsizei width, GLsizei height)
@@ -243,7 +251,7 @@ class _baseScene
                     totalSpentResources += TOWER_BASE_COST;
                     availableResources -= TOWER_BASE_COST;
                 }
-                else
+                else if (towerType == 1)
                 {
                     towers[i].xMin = x - 0.01;
                     towers[i].xMax = x + 0.01;
@@ -257,6 +265,21 @@ class _baseScene
 
                     totalSpentResources += TOWER_BOMB_COST;
                     availableResources -= TOWER_BOMB_COST;
+                }
+                else
+                {
+                    towers[i].xMin = x - 0.05;
+                    towers[i].xMax = x + 0.05;
+                    towers[i].yMin = 0;
+                    towers[i].yMax = 0.15;
+                    towers[i].zMin = z - 0.05;
+                    towers[i].zMax = z + 0.05;
+                    towers[i].targetEnemyIndex = -1;
+                    towers[i].lastAttackTicks = globalTimer->getTicks();
+                    towers[i].hasFirstAttack = false;
+
+                    totalSpentResources += TOWER_TESLA_COST;
+                    availableResources -= TOWER_TESLA_COST;
                 }
 
 
@@ -573,7 +596,7 @@ class _baseScene
                     continue;
 
                 obstacles[i].lastAttackTicks = globalTimer->getTicks();
-                //snds->playSoundSource(laserSoundSource);
+                snds->playSoundSource(bulletSoundSource);
 
                 for (int j = 0; j < TOTAL_BULLETS; j++)
                 {
@@ -630,7 +653,9 @@ class _baseScene
         _sounds *snds = new _sounds();
         ISound *backgroundMusic;
         ISoundSource *laserSoundSource;
-        ISoundSource *electricSoundSource;;
+        ISoundSource *electricSoundSource;
+        ISoundSource *explosionSoundSource;
+        ISoundSource *bulletSoundSource;
 
     protected:
         vec2 dim;

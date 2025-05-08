@@ -15,7 +15,7 @@
 #include<_objLoader.h>
 #include<_fort.h>
 
-#define WAVE_SIZE 20
+#define WAVE_SIZE 30
 
 #define RECOVER_TIMER_MS 1000
 #define RECOVER_TIMER_MS 1000
@@ -78,7 +78,7 @@ class _sceneC: public _baseScene
         GLuint img_popup, img_defeat, img_victory, dirt_tex;
         GLuint overlay1_notReady, overlay1_ready, overlay1_selected;
         GLuint overlay2_notReady, overlay2_ready, overlay2_selected;
-        GLuint overlay3_disabled;
+        GLuint overlay3_notReady, overlay3_ready, overlay3_selected;
 
         _inputs *myInputs = new _inputs();
 
@@ -88,7 +88,7 @@ class _sceneC: public _baseScene
         _timer *transitionDelayTimer = new _timer();
 
         int spawnTimerDelayMs = 0;
-        int spawnTimerDelayMinimumDuration = 2000;
+        int spawnTimerDelayMinimumDuration = 1000;
         int spawnTimerDelayRange = 2500;
 
         vec3 roadRotation;
