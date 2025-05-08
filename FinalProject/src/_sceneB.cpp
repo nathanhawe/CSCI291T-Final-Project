@@ -854,10 +854,9 @@ int _sceneB::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     placingTowerType = 1;
                 }
             }
-            else
-            {
-                myInputs->keyPressed(camera);
-            }
+
+            myInputs->keyPressed(camera);
+
 
             // Quickly exit to next level
             if (wParam == VK_END)

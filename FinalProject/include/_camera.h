@@ -22,10 +22,16 @@ class _camera
 
         void rotationXY(); // Rotation on X/Y
         void rotationUD(); // Rotation on Up/Down
+
         void moveForward();
         void moveBack();
         void moveLeft();
         void moveRight();
+
+        void rotateLeft();
+        void rotateRight();
+        void zoomIn();
+        void zoomOut();
 
     protected:
 

@@ -750,10 +750,10 @@ int _sceneA::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 if(wParam == 49 && availableResources >= TOWER_BASE_COST) // 1 on keyboard
                     isPlacingTower = !isPlacingTower;
             }
-            else
-            {
-                myInputs->keyPressed(camera);
-            }
+
+
+            myInputs->keyPressed(camera);
+
 
             // Quickly exit to next level
             if (wParam == VK_END)
