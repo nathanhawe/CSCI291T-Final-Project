@@ -29,8 +29,14 @@ GLvoid _sceneManager::renderActiveScene()
 {
     if(activeScene->currentSceneState == activeScene->SCENE_EXIT)
     {
-        exit = true;
-        return;
+        if (activeScene == sceneLanding) {
+            exit = true;
+            return;
+        }
+        activeScene->snds->pauseMusic(activeScene->backgroundMusic);
+        activeScene = sceneLanding;
+        activeScene->currentSceneState = activeScene->SCENE_START;
+        cout << "Manager: Switched to Landing" << endl;
     }
 
     switchActiveScene();
