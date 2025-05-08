@@ -15,6 +15,7 @@ class _fort
 
         void drawfort();
         void initFortassets();
+        void drawTree(float tr_x, float tr_y, float tr_z);
 
     protected:
 

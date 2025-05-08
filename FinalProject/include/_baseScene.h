@@ -90,6 +90,7 @@ class _baseScene
             roof_tex = textureLoader->loadImages("images/roof.jpg");
             ground_tex = textureLoader->loadImages("images/ground.jpg");
             dirt_tex = textureLoader->loadImages("images/dirt.jpg");
+            tnt_tex = textureLoader->loadImages("images/tnt.jpg");
 
             snds->initSound();
             laserSoundSource = snds->loadSoundSource(SOUND_LASER);
@@ -362,68 +363,37 @@ class _baseScene
         }
 
 
-        void drawBombAt(float x, float y, float z, float width, float height)
+        void drawBombAt(float x, float y, float z, float scale)
         {
             glPushMatrix();
+              glTranslatef(x, y, z);
+              glScalef(scale+0.05, scale+0.05, scale+0.05);
 
-            glTranslatef(x, y, z);
-            glScalef(width / 2.5f, height / 20.0f, width / 2.5f); // Scale
+              // Set up quadric
+              GLUquadric* q = gluNewQuadric();
+              gluQuadricNormals(q, GLU_SMOOTH);
+              gluQuadricTexture(q, GL_TRUE);
 
-            glBindTexture(GL_TEXTURE_2D, tower_tex);
 
-            glBegin(GL_QUADS);
-            // Front
-            glNormal3f(0, 0, 1);
-            glTexCoord2f(0, 1); glVertex3f(-1.25f, 0.0f, 1.25f);
-            glTexCoord2f(0, 0); glVertex3f(-1.25f, 20.0f, 1.25f);
-            glTexCoord2f(1, 0); glVertex3f(1.25f, 20.0f, 1.25f);
-            glTexCoord2f(1, 1); glVertex3f(1.25f, 0.0f, 1.25f);
-            // Back
-            glNormal3f(0, 0, -1);
-            glTexCoord2f(0, 1); glVertex3f(-1.25f, 0.0f, -1.25f);
-            glTexCoord2f(0, 0); glVertex3f(-1.25f, 20.0f, -1.25f);
-            glTexCoord2f(1, 0); glVertex3f(1.25f, 20.0f, -1.25f);
-            glTexCoord2f(1, 1); glVertex3f(1.25f, 0.0f, -1.25f);
-            // Right
-            glNormal3f(1, 0, 0);
-            glTexCoord2f(0, 1); glVertex3f(1.25f, 0.0f, -1.25f);
-            glTexCoord2f(0, 0); glVertex3f(1.25f, 20.0f, -1.25f);
-            glTexCoord2f(1, 0); glVertex3f(1.25f, 20.0f, 1.25f);
-            glTexCoord2f(1, 1); glVertex3f(1.25f, 0.0f, 1.25f);
-            // Left
-            glNormal3f(-1, 0, 0);
-            glTexCoord2f(0, 1); glVertex3f(-1.25f, 0.0f, -1.25f);
-            glTexCoord2f(0, 0); glVertex3f(-1.25f, 20.0f, -1.25f);
-            glTexCoord2f(1, 0); glVertex3f(-1.25f, 20.0f, 1.25f);
-            glTexCoord2f(1, 1); glVertex3f(-1.25f, 0.0f, 1.25f);
-            glEnd();
+              glBindTexture(GL_TEXTURE_2D, tnt_tex);
 
-            // Draw roof
-            glBindTexture(GL_TEXTURE_2D, roof_tex);
-            glBegin(GL_TRIANGLES);
-            float apexY = 25.0f;
-            float apexX = 0.0f, apexZ = 0.0f;
+              // Draw barrel body (cylinder)
+              gluCylinder(q, 0.6f, 0.6f, 1.5f, 24, 4); // radius, radius, height
 
-            glNormal3f(0, 0.5f, 0.5f);
-            glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
-            glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.25f, 20.0f, 1.25f);
-            glTexCoord2f(1.0f, 0.0f); glVertex3f(1.25f, 20.0f, 1.25f);
+              // Draw top cap
+              glPushMatrix();
+                glTranslatef(0.0f, 0.0f, 0.0f); // base
+                gluDisk(q, 0.0f, 0.6f, 24, 1);
+              glPopMatrix();
 
-            glNormal3f(0.5f, 0.5f, 0.0f);
-            glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
-            glTexCoord2f(0.0f, 0.0f); glVertex3f(1.25f, 20.0f, 1.25f);
-            glTexCoord2f(1.0f, 0.0f); glVertex3f(1.25f, 20.0f, -1.25f);
+              // Draw bottom cap
+              glPushMatrix();
+                glTranslatef(0.0f, 0.0f, 1.5f); // top
+                gluDisk(q, 0.0f, 0.6f, 24, 1);
+              glPopMatrix();
 
-            glNormal3f(0, 0.5f, -0.5f);
-            glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
-            glTexCoord2f(0.0f, 0.0f); glVertex3f(1.25f, 20.0f, -1.25f);
-            glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.25f, 20.0f, -1.25f);
+              gluDeleteQuadric(q);
 
-            glNormal3f(-0.5f, 0.5f, 0.0f);
-            glTexCoord2f(0.5f, 1.0f); glVertex3f(apexX, apexY, apexZ);
-            glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.25f, 20.0f, -1.25f);
-            glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.25f, 20.0f, 1.25f);
-            glEnd();
 
             glPopMatrix();
         }
@@ -635,7 +605,7 @@ class _baseScene
             //cout << " Resources Available/Spent: " << availableResources << "/" << totalSpentResources << endl;
         }
 
-        GLuint tower_tex, roof_tex, ground_tex, dirt_tex;
+        GLuint tower_tex, roof_tex, ground_tex, dirt_tex,tnt_tex;
 
         _timer *globalTimer = new _timer();
         _textureLoader *textureLoader;

@@ -304,7 +304,8 @@ GLvoid _sceneC::renderScene()
                 float towerWidth = towers[i].xMax - towers[i].xMin;
                 float towerHeight = towers[i].yMax - towers[i].yMin;
 
-                drawBombAt(posX, posY, posZ, towerWidth, towerHeight);
+                float bombScale = (towerWidth + towerHeight) / 2.0f;  // average scale from both
+                drawBombAt(posX, posY, posZ, bombScale);
             }
             else if (towers[i].type == 2)
             {

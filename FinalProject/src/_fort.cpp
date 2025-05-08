@@ -1374,127 +1374,49 @@ void _fort::drawfort()
 
 
 
-
-         // Trees
-         glPushMatrix();{
-             // tree 1
-             int tr_x = 200, tr_y = 200, tr_z = -30;
-             glPushMatrix(); {
-                 glBindTexture(GL_TEXTURE_2D, texid9);
-                 glTranslatef(tr_x,tr_y,tr_z);
-                 glBegin(GL_POLYGON);{
-                     glTexCoord2f(0,0);  glVertex3f(0, 0, 0);
-                     glTexCoord2f(0,0);  glVertex3f(-15, 0, 30);
-                     glTexCoord2f(0,1);  glVertex3f(-20, 0, 60);
-                     glTexCoord2f(0,1); glVertex3f(-5, 0, 90);
-                     glTexCoord2f(1,1); glVertex3f(5, 0, 90);
-                     glTexCoord2f(1,0); glVertex3f(20, 0, 60);
-                     glTexCoord2f(1,1); glVertex3f(15, 0, 30);
-                 }glEnd();
-             } glPopMatrix();
-             glPushMatrix(); {
-                 glBindTexture(GL_TEXTURE_2D, texid9);
-                 glTranslatef(tr_x,tr_y,tr_z);
-                 glRotatef(90,0,0,1);
-                 glBegin(GL_POLYGON);{
-                     glTexCoord2f(0,0);  glVertex3f(0, 0, 0);
-                     glTexCoord2f(0,0);  glVertex3f(-15, 0, 30);
-                     glTexCoord2f(0,1);  glVertex3f(-20, 0, 60);
-                     glTexCoord2f(0,1); glVertex3f(-5, 0, 90);
-                     glTexCoord2f(1,1); glVertex3f(5, 0, 90);
-                     glTexCoord2f(1,0); glVertex3f(20, 0, 60);
-                     glTexCoord2f(1,1); glVertex3f(15, 0, 30);
-                 }glEnd();
-             } glPopMatrix();
-
-             // tree 2
-             tr_x = 300, tr_y = 200, tr_z = -30;
-             glPushMatrix(); {
-                 glBindTexture(GL_TEXTURE_2D, texid9);
-                 glTranslatef(tr_x,tr_y,tr_z);
-                 glBegin(GL_POLYGON);{
-                     glTexCoord2f(0,0);  glVertex3f(0, 0, 0);
-                     glTexCoord2f(0,0);  glVertex3f(-15, 0, 30);
-                     glTexCoord2f(0,1);  glVertex3f(-20, 0, 60);
-                     glTexCoord2f(0,1); glVertex3f(-5, 0, 90);
-                     glTexCoord2f(1,1); glVertex3f(5, 0, 90);
-                     glTexCoord2f(1,0); glVertex3f(20, 0, 60);
-                     glTexCoord2f(1,1); glVertex3f(15, 0, 30);
-                 }glEnd();
-             } glPopMatrix();
-             glPushMatrix(); {
-                 glBindTexture(GL_TEXTURE_2D, texid9);
-                 glTranslatef(tr_x,tr_y,tr_z);
-                 glRotatef(90,0,0,1);
-                 glBegin(GL_POLYGON);{
-                     glTexCoord2f(0,0);  glVertex3f(0, 0, 0);
-                     glTexCoord2f(0,0);  glVertex3f(-15, 0, 30);
-                     glTexCoord2f(0,1);  glVertex3f(-20, 0, 60);
-                     glTexCoord2f(0,1); glVertex3f(-5, 0, 90);
-                     glTexCoord2f(1,1); glVertex3f(5, 0, 90);
-                     glTexCoord2f(1,0); glVertex3f(20, 0, 60);
-                     glTexCoord2f(1,1); glVertex3f(15, 0, 30);
-                 }glEnd();
-             } glPopMatrix();
-
-             // tree 3
-             tr_x = 400, tr_y = 200, tr_z = -30;
-             glPushMatrix(); {
-                 glBindTexture(GL_TEXTURE_2D, texid9);
-                 glTranslatef(tr_x,tr_y,tr_z);
-                 glBegin(GL_POLYGON);{
-                     glTexCoord2f(0,0);  glVertex3f(0, 0, 0);
-                     glTexCoord2f(0,0);  glVertex3f(-15, 0, 30);
-                     glTexCoord2f(0,1);  glVertex3f(-20, 0, 60);
-                     glTexCoord2f(0,1); glVertex3f(-5, 0, 90);
-                     glTexCoord2f(1,1); glVertex3f(5, 0, 90);
-                     glTexCoord2f(1,0); glVertex3f(20, 0, 60);
-                     glTexCoord2f(1,1); glVertex3f(15, 0, 30);
-                 }glEnd();
-             } glPopMatrix();
-             glPushMatrix(); {
-                 glBindTexture(GL_TEXTURE_2D, texid9);
-                 glTranslatef(tr_x,tr_y,tr_z);
-                 glRotatef(90,0,0,1);
-                 glBegin(GL_POLYGON);{
-                     glTexCoord2f(0,0);  glVertex3f(0, 0, 0);
-                     glTexCoord2f(0,0);  glVertex3f(-15, 0, 30);
-                     glTexCoord2f(0,1);  glVertex3f(-20, 0, 60);
-                     glTexCoord2f(0,1); glVertex3f(-5, 0, 90);
-                     glTexCoord2f(1,1); glVertex3f(5, 0, 90);
-                     glTexCoord2f(1,0); glVertex3f(20, 0, 60);
-                     glTexCoord2f(1,1); glVertex3f(15, 0, 30);
-                 }glEnd();
-             } glPopMatrix();
-
-             } glPopMatrix();
-
-
-
-
-
-
-
-            //}glPopMatrix();
-
-
-
-
-
-
-
-         //}
-
-
          gluDeleteQuadric(quadric);
 } //glDisable(GL_TEXTURE_2D);
 
 
+// _sceneA.cpp
+
+void _fort::drawTree(float tr_x, float tr_y, float tr_z)
+{
+    // First “billboard” pass
+    glPushMatrix();
+        glBindTexture(GL_TEXTURE_2D, texid9);
+        glTranslatef(tr_x, tr_y, tr_z);
+        glBegin(GL_POLYGON);
+            glTexCoord2f(0,0);  glVertex3f(   0,   0,   0);
+            glTexCoord2f(0,0);  glVertex3f(-15,   0,  30);
+            glTexCoord2f(0,1);  glVertex3f(-20,   0,  60);
+            glTexCoord2f(0,1);  glVertex3f( -5,   0,  90);
+            glTexCoord2f(1,1);  glVertex3f(  5,   0,  90);
+            glTexCoord2f(1,0);  glVertex3f( 20,   0,  60);
+            glTexCoord2f(1,1);  glVertex3f( 15,   0,  30);
+        glEnd();
+    glPopMatrix();
+
+    // Second pass, rotated 90° about Z
+    glPushMatrix();
+        glBindTexture(GL_TEXTURE_2D, texid9);
+        glTranslatef(tr_x, tr_y, tr_z);
+        glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
+        glBegin(GL_POLYGON);
+            glTexCoord2f(0,0);  glVertex3f(   0,   0,   0);
+            glTexCoord2f(0,0);  glVertex3f(-15,   0,  30);
+            glTexCoord2f(0,1);  glVertex3f(-20,   0,  60);
+            glTexCoord2f(0,1);  glVertex3f( -5,   0,  90);
+            glTexCoord2f(1,1);  glVertex3f(  5,   0,  90);
+            glTexCoord2f(1,0);  glVertex3f( 20,   0,  60);
+            glTexCoord2f(1,1);  glVertex3f( 15,   0,  30);
+        glEnd();
+    glPopMatrix();
+}
 
 
 
-	//ADD this line in the end --- if you use double buffer (i.e. GL_DOUBLE)
-	//glutSwapBuffers();
+
 
 
 

@@ -186,6 +186,51 @@ GLvoid _sceneA::renderScene()
         glScalef(0.002f, 0.002f, 0.002f);
 
         fort1->drawfort();
+
+        fort1->drawTree(-600.0f, 300.0f, 10.0f);
+        fort1->drawTree(-500.0f, 300.0f, 10.0f);
+        fort1->drawTree(-400.0f, 300.0f, 10.0f);
+        fort1->drawTree(-300.0f, 300.0f, 10.0f);
+        fort1->drawTree(-200.0f, 300.0f, 10.0f);
+        fort1->drawTree(-100.0f, 300.0f, 10.0f);
+        fort1->drawTree(0.0f, 300.0f, 10.0f);
+        fort1->drawTree(100.0f, 300.0f, 10.0f);
+        fort1->drawTree(200.0f, 300.0f, 10.0f);
+        fort1->drawTree(300.0f, 300.0f, 10.0f);
+        fort1->drawTree(400.0f, 300.0f, 10.0f);
+        fort1->drawTree(500.0f, 300.0f, 10.0f);
+        fort1->drawTree(600.0f, 300.0f, 10.0f);
+        fort1->drawTree(700.0f, 300.0f, 10.0f);
+        fort1->drawTree(800.0f, 300.0f, 10.0f);
+        fort1->drawTree(900.0f, 300.0f, 10.0f);
+        fort1->drawTree(1000.0f, 300.0f, 10.0f);
+        fort1->drawTree(1100.0f, 300.0f, 10.0f);
+        fort1->drawTree(1200.0f, 300.0f, 10.0f);
+        fort1->drawTree(1300.0f, 300.0f, 10.0f);
+
+
+        fort1->drawTree(-600.0f, -650.0f, 10.0f);
+        fort1->drawTree(-500.0f, -650.0f, 10.0f);
+        fort1->drawTree(-400.0f, -650.0f, 10.0f);
+        fort1->drawTree(-300.0f, -650.0f, 10.0f);
+        fort1->drawTree(-200.0f, -650.0f, 10.0f);
+        fort1->drawTree(-100.0f, -650.0f, 10.0f);
+        fort1->drawTree(0.0f, -650.0f, 10.0f);
+        fort1->drawTree(100.0f, -650.0f, 10.0f);
+        fort1->drawTree(200.0f, -650.0f, 10.0f);
+        fort1->drawTree(300.0f, -650.0f, 10.0f);
+        fort1->drawTree(400.0f, -650.0f, 10.0f);
+        fort1->drawTree(500.0f, -650.0f, 10.0f);
+        fort1->drawTree(600.0f, -650.0f, 10.0f);
+        fort1->drawTree(700.0f, -650.0f, 10.0f);
+        fort1->drawTree(800.0f, -650.0f, 10.0f);
+        fort1->drawTree(900.0f, -650.0f, 10.0f);
+        fort1->drawTree(1000.0f, -650.0f, 10.0f);
+        fort1->drawTree(1100.0f, -650.0f, 10.0f);
+        fort1->drawTree(1200.0f, -650.0f, 10.0f);
+        fort1->drawTree(1300.0f, -650.0f, 10.0f);
+
+
         glPopMatrix();
 
         glColor3f(1, 1, 1);

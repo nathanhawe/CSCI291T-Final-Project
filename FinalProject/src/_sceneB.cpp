@@ -77,7 +77,7 @@ GLint _sceneB::IniGL()
 
     // Start background music
     sky->skyBoxInit();
-    //fort1->initFortassets();
+    fort1->initFortassets();
     backgroundMusic = snds->playMusic(MUSIC_FILE);
     backgroundMusic->setVolume(0.15f);
 
@@ -191,6 +191,50 @@ GLvoid _sceneB::renderScene()
         glScalef(0.002f, 0.002f, 0.002f);
 
         //fort1->drawfort();
+
+        fort1->drawTree(-600.0f, 300.0f, 10.0f);
+        fort1->drawTree(-500.0f, 300.0f, 10.0f);
+        fort1->drawTree(-400.0f, 300.0f, 10.0f);
+        fort1->drawTree(-300.0f, 300.0f, 10.0f);
+        fort1->drawTree(-200.0f, 300.0f, 10.0f);
+        fort1->drawTree(-100.0f, 300.0f, 10.0f);
+        fort1->drawTree(0.0f, 300.0f, 10.0f);
+        fort1->drawTree(100.0f, 300.0f, 10.0f);
+        fort1->drawTree(200.0f, 300.0f, 10.0f);
+        //fort1->drawTree(300.0f, 300.0f, 10.0f);
+        //fort1->drawTree(400.0f, 300.0f, 10.0f);
+        //fort1->drawTree(500.0f, 300.0f, 10.0f);
+        fort1->drawTree(600.0f, 300.0f, 10.0f);
+        fort1->drawTree(700.0f, 300.0f, 10.0f);
+        fort1->drawTree(800.0f, 300.0f, 10.0f);
+        fort1->drawTree(900.0f, 300.0f, 10.0f);
+        fort1->drawTree(1000.0f, 300.0f, 10.0f);
+        fort1->drawTree(1100.0f, 300.0f, 10.0f);
+        fort1->drawTree(1200.0f, 300.0f, 10.0f);
+        fort1->drawTree(1300.0f, 300.0f, 10.0f);
+
+
+        fort1->drawTree(-600.0f, -650.0f, 10.0f);
+        fort1->drawTree(-500.0f, -650.0f, 10.0f);
+        fort1->drawTree(-400.0f, -650.0f, 10.0f);
+        fort1->drawTree(-300.0f, -650.0f, 10.0f);
+        //fort1->drawTree(-200.0f, -650.0f, 10.0f);
+        //fort1->drawTree(-100.0f, -650.0f, 10.0f);
+        //fort1->drawTree(0.0f, -650.0f, 10.0f);
+        fort1->drawTree(100.0f, -650.0f, 10.0f);
+        fort1->drawTree(200.0f, -650.0f, 10.0f);
+        fort1->drawTree(300.0f, -650.0f, 10.0f);
+        fort1->drawTree(400.0f, -650.0f, 10.0f);
+        fort1->drawTree(500.0f, -650.0f, 10.0f);
+        fort1->drawTree(600.0f, -650.0f, 10.0f);
+        fort1->drawTree(700.0f, -650.0f, 10.0f);
+        //fort1->drawTree(800.0f, -650.0f, 10.0f);
+        //fort1->drawTree(900.0f, -650.0f, 10.0f);
+        //fort1->drawTree(1000.0f, -650.0f, 10.0f);
+        fort1->drawTree(1100.0f, -650.0f, 10.0f);
+        fort1->drawTree(1200.0f, -650.0f, 10.0f);
+        fort1->drawTree(1300.0f, -650.0f, 10.0f);
+
         glPopMatrix();
 
         glColor3f(1, 1, 1);
@@ -278,7 +322,8 @@ GLvoid _sceneB::renderScene()
                 float towerWidth = towers[i].xMax - towers[i].xMin;
                 float towerHeight = towers[i].yMax - towers[i].yMin;
 
-                drawBombAt(posX, posY, posZ, towerWidth, towerHeight);
+                float bombScale = (towerWidth + towerHeight) / 2.0f;  // average scale from both
+                drawBombAt(posX, posY, posZ, bombScale);
             }
             else
             {
