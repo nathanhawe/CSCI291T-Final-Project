@@ -663,6 +663,11 @@ void _sceneB::transitionSceneState()
             reset();
             return;
         }
+        else if (nextFailSpinTicks < globalTimer->getTicks())
+        {
+            nextFailSpinTicks = globalTimer->getTicks() + FAIL_SPIN_TIMER_DELAY;
+            camera->rotateLeft();
+        }
     }
     else if (currentSceneState == SCENE_VICTORY)
     {
@@ -676,6 +681,7 @@ void _sceneB::transitionSceneState()
         snds->playSound(SOUND_FAIL);
         newState = SCENE_FAILURE;
         transitionDelayTimer->reset();
+        nextFailSpinTicks = 0;
     }
     else if((enemiesDefeatedCount + playerHitCount) >= WAVE_SIZE)
     {
@@ -771,6 +777,7 @@ bool _sceneB::hasCollided()
 
 void _sceneB::reset()
 {
+    camera->reset();
     waveSize = WAVE_SIZE;
     enemiesDefeatedCount = 0;
     totalEnemiesSpawned = 0;

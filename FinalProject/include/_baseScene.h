@@ -24,6 +24,8 @@
 #define TOWER_BOMB_COST 2
 #define TOWER_TESLA_COST 5
 
+#define FAIL_SPIN_TIMER_DELAY 5
+
 typedef struct enemyModel
 {
     _3dmodelloader *model;
@@ -656,6 +658,8 @@ class _baseScene
         ISoundSource *electricSoundSource;
         ISoundSource *explosionSoundSource;
         ISoundSource *bulletSoundSource;
+
+        clock_t nextFailSpinTicks;
 
     protected:
         vec2 dim;
