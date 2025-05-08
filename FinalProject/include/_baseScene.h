@@ -17,7 +17,7 @@
 #define SOUND_FAIL "sounds/Sad Trombone Wah Wah Wah Fail Sound - Sound Effect #35.mp3"
 #define SOUND_LASER "sounds/laser.mp3"
 #define SOUND_ELECTRIC "sounds/electric.mp3"
-#define SOUND_BULLET "sounds/laser.mp3"
+#define SOUND_BULLET "sounds/Howitzer Cannon Fire.mp3"
 #define SOUND_EXPLOSION "sounds/Big Explosion Distant.mp3"
 
 #define TOWER_BASE_COST 3
@@ -79,6 +79,7 @@ class _baseScene
             delete laserSoundSource;
             delete electricSoundSource;
             delete explosionSoundSource;
+            delete bulletSoundSource;
         }
 
         void init()
@@ -95,6 +96,8 @@ class _baseScene
             electricSoundSource->setDefaultVolume(0.30f);
             explosionSoundSource = snds->loadSoundSource(SOUND_EXPLOSION);
             explosionSoundSource->setDefaultVolume(0.50f);
+            bulletSoundSource = snds->loadSoundSource(SOUND_BULLET);
+            bulletSoundSource->setDefaultVolume(1.0f);
         }
 
         GLvoid resizeWindow(GLsizei width, GLsizei height)
@@ -593,7 +596,7 @@ class _baseScene
                     continue;
 
                 obstacles[i].lastAttackTicks = globalTimer->getTicks();
-                //snds->playSoundSource(laserSoundSource);
+                snds->playSoundSource(bulletSoundSource);
 
                 for (int j = 0; j < TOTAL_BULLETS; j++)
                 {
@@ -652,6 +655,7 @@ class _baseScene
         ISoundSource *laserSoundSource;
         ISoundSource *electricSoundSource;
         ISoundSource *explosionSoundSource;
+        ISoundSource *bulletSoundSource;
 
     protected:
         vec2 dim;
