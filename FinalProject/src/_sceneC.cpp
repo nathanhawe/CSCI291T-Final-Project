@@ -457,42 +457,91 @@ void _sceneC::drawPlacementCircle(float towerSize, float towerRange)
         return;
 
     if (
-        mouseX >= -2 - towerSize && mouseX <= -1 + towerSize &&
-        mouseZ >= -0.05 - towerSize && mouseZ <= 0.05 + towerSize)
+        mouseX >= -0.40 - towerSize && mouseX <= 0.40 + towerSize &&
+        mouseZ >= -0.25 - towerSize && mouseZ <= -0.25 + towerSize)
     {
         isTowerPlaceable = false;
     }
     else if (
-        mouseX >= 1 - towerSize && mouseX <= 2 + towerSize &&
-        mouseZ >= -0.05 - towerSize && mouseZ <= 0.05 + towerSize)
+        mouseX >= -2.00 - towerSize && mouseX <= -0.35 + towerSize &&
+        mouseZ >=  0.25 - towerSize && mouseZ <=  0.25 + towerSize)
     {
         isTowerPlaceable = false;
     }
     else if (
-        mouseX >= -1 - towerSize && mouseX <= 1 + towerSize &&
-        mouseZ >= 0.45 - towerSize && mouseZ <= 0.55 + towerSize)
+        mouseX >=  0.35 - towerSize && mouseX <=  2.00 + towerSize &&
+        mouseZ >=  0.25 - towerSize && mouseZ <=  0.25 + towerSize)
     {
         isTowerPlaceable = false;
     }
     else if (
-        mouseX >= -1.05 - towerSize && mouseX <= -0.95 + towerSize &&
-        mouseZ >= -1 - towerSize && mouseZ <= 0.5 + towerSize)
+        mouseX >= -2.00 - towerSize && mouseX <= -0.15 + towerSize &&
+        mouseZ >=  0.60 - towerSize && mouseZ <=  0.60 + towerSize)
     {
         isTowerPlaceable = false;
     }
     else if (
-        mouseX >= 0.95 - towerSize && mouseX <= 1.05 + towerSize &&
-        mouseZ >= -1 - towerSize && mouseZ <= 0.5 + towerSize)
+        mouseX >=  0.15 - towerSize && mouseX <=  2.00 + towerSize &&
+        mouseZ >=  0.60 - towerSize && mouseZ <=  0.60 + towerSize)
     {
         isTowerPlaceable = false;
     }
     else if (
-        mouseX >= -0.05 - towerSize && mouseX <= 0.05 + towerSize &&
-        mouseZ >= 0.5 - towerSize && mouseZ <= 1 + towerSize)
+        mouseX >= -1.30 - towerSize && mouseX <= -1.30 + towerSize &&
+        mouseZ >= -1.00 - towerSize && mouseZ <=  0.25 + towerSize)
+    {
+        isTowerPlaceable = false;
+    }
+    else if (
+        mouseX >=  1.30 - towerSize && mouseX <=  1.30 + towerSize &&
+        mouseZ >= -1.00 - towerSize && mouseZ <=  0.25 + towerSize)
+    {
+        isTowerPlaceable = false;
+    }
+    else if (
+        mouseX >= -0.60 - towerSize && mouseX <= -0.60 + towerSize &&
+        mouseZ >=  0.60 - towerSize && mouseZ <=  1.00 + towerSize)
+    {
+        isTowerPlaceable = false;
+    }
+    else if (
+        mouseX >=  0.60 - towerSize && mouseX <=  0.60 + towerSize &&
+        mouseZ >=  0.60 - towerSize && mouseZ <=  1.00 + towerSize)
+    {
+        isTowerPlaceable = false;
+    }
+    else if (
+        mouseX >= -0.35 - towerSize && mouseX <= -0.35 + towerSize &&
+        mouseZ >= -0.25 - towerSize && mouseZ <=  0.30 + towerSize)
+    {
+        isTowerPlaceable = false;
+    }
+    else if (
+        mouseX >=  0.35 - towerSize && mouseX <=  0.35 + towerSize &&
+        mouseZ >= -0.25 - towerSize && mouseZ <=  0.30 + towerSize)
+    {
+        isTowerPlaceable = false;
+    }
+    else if (
+        mouseX >= -0.15 - towerSize && mouseX <= -0.15 + towerSize &&
+        mouseZ >= -0.25 - towerSize && mouseZ <=  0.65 + towerSize)
+    {
+        isTowerPlaceable = false;
+    }
+    else if (
+        mouseX >=  0.15 - towerSize && mouseX <=  0.15 + towerSize &&
+        mouseZ >= -0.25 - towerSize && mouseZ <=  0.65 + towerSize)
+    {
+        isTowerPlaceable = false;
+    }
+    else if (
+        mouseX >=  0 - towerSize && mouseX <=  0 + towerSize &&
+        mouseZ >= -0.75 - towerSize && mouseZ <= -0.25 + towerSize)
     {
         isTowerPlaceable = false;
     }
     else isTowerPlaceable = true;
+
     // TODO: Add check of existing towers as well.
 
     // Bombs are only placeable on roads.
