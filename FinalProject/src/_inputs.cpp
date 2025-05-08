@@ -146,19 +146,19 @@ void _inputs::keyPressed(_camera* camera)
     switch(wParam)
     {
         case 0x57:  // Forward (W)
-            camera->moveForward();
+            camera->zoomIn();
             break;
 
         case 0x53:  // Back (S)
-            camera->moveBack();
+            camera->zoomOut();
             break;
 
         case 0x41:  // Left (A)
-            camera->moveLeft();
+            camera->rotateLeft();
             break;
 
         case 0x44:  // Right (D)
-            camera->moveRight();
+            camera->rotateRight();
             break;
 
         case VK_SPACE:

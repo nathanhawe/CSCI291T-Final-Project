@@ -583,6 +583,11 @@ void _sceneA::transitionSceneState()
             reset();
             return;
         }
+        else if (nextFailSpinTicks < globalTimer->getTicks())
+        {
+            nextFailSpinTicks = globalTimer->getTicks() + FAIL_SPIN_TIMER_DELAY;
+            camera->rotateLeft();
+        }
     }
     else if (currentSceneState == SCENE_VICTORY)
     {
@@ -596,6 +601,7 @@ void _sceneA::transitionSceneState()
         snds->playSound(SOUND_FAIL);
         newState = SCENE_FAILURE;
         transitionDelayTimer->reset();
+        nextFailSpinTicks = 0;
     }
     else if((enemiesDefeatedCount + playerHitCount) >= WAVE_SIZE)
     {
@@ -681,6 +687,7 @@ bool _sceneA::hasCollided()
 
 void _sceneA::reset()
 {
+    camera->reset();
     waveSize = WAVE_SIZE;
     enemiesDefeatedCount = 0;
     totalEnemiesSpawned = 0;
@@ -750,10 +757,10 @@ int _sceneA::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 if(wParam == 49 && availableResources >= TOWER_BASE_COST) // 1 on keyboard
                     isPlacingTower = !isPlacingTower;
             }
-            else
-            {
-                myInputs->keyPressed(camera);
-            }
+
+
+            myInputs->keyPressed(camera);
+
 
             // Quickly exit to next level
             if (wParam == VK_END)

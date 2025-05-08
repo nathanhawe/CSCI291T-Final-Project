@@ -13,11 +13,11 @@ _camera::~_camera()
 void _camera::init()
 {
     rotAngle.x = 0.0;
-    rotAngle.y = 0.0;
+    rotAngle.y = 90;
 
     eye.x = 0.0;
-    eye.y = 0.0;
-    eye.z = 0.0;
+    eye.y = 2.0;
+    eye.z = 3.0;
 
     des.x = 0.0;
     des.y = 0.0;
@@ -117,5 +117,29 @@ void _camera::moveRight()
     des.x += dX;
     eye.z += dZ;
     des.z += dZ;
+}
+
+void _camera::rotateLeft()
+{
+    rotAngle.y += 0.90;
+    eye.x = distance * cos(rotAngle.y * PI / 180.0);
+    eye.z = distance * sin(rotAngle.y * PI / 180.0);
+}
+
+void _camera::rotateRight()
+{
+    rotAngle.y -= 0.90;
+    eye.x = distance * cos(rotAngle.y * PI / 180.0);
+    eye.z = distance * sin(rotAngle.y * PI / 180.0);
+}
+
+void _camera::zoomIn()
+{
+
+}
+
+void _camera::zoomOut()
+{
+
 }
 
