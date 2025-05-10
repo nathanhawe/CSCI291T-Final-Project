@@ -75,7 +75,7 @@ class _sceneB: public _baseScene
         int placingTowerType;
 
         int returnToStateAfterPause;
-        GLuint img_popup, img_defeat, img_victory, dirt_tex;
+        GLuint img_popup, img_help, img_defeat, img_victory, dirt_tex;
         GLuint overlay1_notReady, overlay1_ready, overlay1_selected;
         GLuint overlay2_notReady, overlay2_ready, overlay2_selected;
         GLuint overlay3_disabled;

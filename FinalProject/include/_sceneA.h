@@ -76,7 +76,7 @@ class _sceneA: public _baseScene
         void drawOverlay();
 
         int returnToStateAfterPause;
-        GLuint img_popup, img_defeat, img_victory, dirt_tex;
+        GLuint img_popup, img_help, img_defeat, img_victory, dirt_tex;
         GLuint overlay1_notReady, overlay1_ready, overlay1_selected;
         GLuint overlay2_disabled;
         GLuint overlay3_disabled;

@@ -33,9 +33,9 @@ class _sceneLanding : public _baseScene
         _sounds *snds = new _sounds();
         ISound *backgroundMusic;
 
-        GLuint landingPage, menuPage, helpPage, menuPageNew, menuPageHelp, menuPageExit;
+        GLuint landingPage, menuPage, helpPage, creditsPage;
 
-        enum {HOVER_NONE = 0, HOVER_NEW, HOVER_HELP, HOVER_EXIT};
+        enum {HOVER_NONE = 0, HOVER_NEW, HOVER_HELP, HOVER_EXIT, HOVER_CREDITS};
         int mouseHoverState = 0;
 
 };

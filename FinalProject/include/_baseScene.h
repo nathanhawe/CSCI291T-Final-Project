@@ -614,7 +614,7 @@ class _baseScene
         virtual GLvoid renderScene() = 0;
         virtual int winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
 
-        enum {SCENE_START, SCENE_RUNNING, SCENE_COLLISION, SCENE_RECOVERY, SCENE_FAILURE, SCENE_VICTORY, SCENE_EXIT, SCENE_PAUSE, SCENE_TRANSITION} SceneState;
+        enum {SCENE_START, SCENE_RUNNING, SCENE_COLLISION, SCENE_RECOVERY, SCENE_FAILURE, SCENE_VICTORY, SCENE_EXIT, SCENE_PAUSE, SCENE_TRANSITION, SCENE_CREDITS} SceneState;
         int currentSceneState=0;
 
         GLdouble mouseX, mouseY, mouseZ;

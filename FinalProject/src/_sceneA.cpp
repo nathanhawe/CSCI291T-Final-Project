@@ -60,7 +60,8 @@ GLint _sceneA::IniGL()
         enemyFactory->GenerateTekk(&obstacles[i].model, &obstacles[i].weapon, i);
 
     // Load popup images
-    img_popup = textureLoader->loadImages("images/popup.png");
+    img_popup = textureLoader->loadImages("images/popup1.png");
+    img_help = textureLoader->loadImages("images/help_page.png");
     img_defeat = textureLoader->loadImages("images/defeat.png");
     img_victory = textureLoader->loadImages("images/victory.png");
 
@@ -125,7 +126,7 @@ GLvoid _sceneA::renderScene()
             if(collidedObstacle != nullptr)
                 collidedObstacle->actionTrigger = collidedObstacleW->actionTrigger = collidedObstacle->RUN;
         case SCENE_RECOVERY:
-            spawnTimer->resumeTime();
+            //spawnTimer->resumeTime();
             //player->actionTrigger = playerW->actionTrigger = player->RUN;
             break;
 
@@ -245,17 +246,7 @@ GLvoid _sceneA::renderScene()
             checkBulletCollision(bullets, towers);
         }
 
-        if(currentSceneState == SCENE_PAUSE)
-        {
-            //float ratX = dim.x / dim.y;
-            glBindTexture(GL_TEXTURE_2D, img_popup);
-            glBegin(GL_POLYGON);
-                glTexCoord2f(0, 1); glVertex3f(-1, -1, 0);
-                glTexCoord2f(1, 1); glVertex3f(1, -1, 0);
-                glTexCoord2f(1, 0); glVertex3f(1, 1, -0.5);
-                glTexCoord2f(0, 0); glVertex3f(-1.0, 1, -0.5);
-            glEnd();
-        }
+
         else if (currentSceneState == SCENE_VICTORY)
         {
             glBindTexture(GL_TEXTURE_2D, img_victory);
@@ -329,6 +320,82 @@ GLvoid _sceneA::renderScene()
 
 
     glColor3f(1, 1, 1);
+
+
+    if(currentSceneState == SCENE_PAUSE)
+        {
+           glDisable(GL_DEPTH_TEST);    // Disable depth test to draw on top
+            glDisable(GL_LIGHTING);      // No lighting for 2D texture
+
+            glMatrixMode(GL_PROJECTION);
+            glPushMatrix();
+            glLoadIdentity();
+
+            float ratX = dim.x / dim.y;
+            gluOrtho2D(-ratX, ratX, -1.0, 1.0);  // Screen-aligned 2D view
+
+            glMatrixMode(GL_MODELVIEW);
+            glPushMatrix();
+            glLoadIdentity();
+
+            glBindTexture(GL_TEXTURE_2D, img_popup);
+            glColor3f(1.0f, 1.0f, 1.0f); // Ensure texture not tinted
+
+            glBegin(GL_QUADS);
+                glTexCoord2f(0, 1); glVertex2f(-ratX, -1.0f);
+                glTexCoord2f(1, 1); glVertex2f( ratX, -1.0f);
+                glTexCoord2f(1, 0); glVertex2f( ratX,  1.0f);
+                glTexCoord2f(0, 0); glVertex2f(-ratX,  1.0f);
+            glEnd();
+
+            glPopMatrix(); // MODELVIEW
+            glMatrixMode(GL_PROJECTION);
+            glPopMatrix();
+            glMatrixMode(GL_MODELVIEW);
+
+            // Restore settings
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_LIGHTING);
+
+
+        }
+        else if(currentSceneState == SCENE_RECOVERY)
+        {
+           glDisable(GL_DEPTH_TEST);    // Disable depth test to draw on top
+            glDisable(GL_LIGHTING);      // No lighting for 2D texture
+
+            glMatrixMode(GL_PROJECTION);
+            glPushMatrix();
+            glLoadIdentity();
+
+            float ratX = dim.x / dim.y;
+            gluOrtho2D(-ratX, ratX, -1.0, 1.0);  // Screen-aligned 2D view
+
+            glMatrixMode(GL_MODELVIEW);
+            glPushMatrix();
+            glLoadIdentity();
+
+            glBindTexture(GL_TEXTURE_2D, img_help);
+            glColor3f(1.0f, 1.0f, 1.0f); // Ensure texture not tinted
+
+            glBegin(GL_QUADS);
+                glTexCoord2f(0, 1); glVertex2f(-ratX, -1.0f);
+                glTexCoord2f(1, 1); glVertex2f( ratX, -1.0f);
+                glTexCoord2f(1, 0); glVertex2f( ratX,  1.0f);
+                glTexCoord2f(0, 0); glVertex2f(-ratX,  1.0f);
+            glEnd();
+
+            glPopMatrix(); // MODELVIEW
+            glMatrixMode(GL_PROJECTION);
+            glPopMatrix();
+            glMatrixMode(GL_MODELVIEW);
+
+            // Restore settings
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_LIGHTING);
+
+
+        }
 
 }
 
@@ -621,6 +688,10 @@ void _sceneA::transitionSceneState()
     {
         return;
     }
+    else if (currentSceneState == SCENE_RECOVERY)
+    {
+        return;
+    }
     else if (currentSceneState == SCENE_FAILURE)
     {
         if (transitionDelayTimer->getTicks() >= TRANSITION_TIMER_MS)
@@ -780,6 +851,10 @@ int _sceneA::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     globalTimer->resumeTime();
                     currentSceneState = returnToStateAfterPause;
                 }
+                else if (currentSceneState == SCENE_RECOVERY)
+                {
+                    currentSceneState = SCENE_PAUSE;
+                }
                 else
                 {
                     returnToStateAfterPause = currentSceneState;
@@ -796,6 +871,11 @@ int _sceneA::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             {
                 if(currentSceneState == SCENE_PAUSE)
                     currentSceneState = SCENE_EXIT;
+            }
+            else if (wParam == 72) // H key
+            {
+                if (currentSceneState == SCENE_PAUSE)
+                    currentSceneState = SCENE_RECOVERY;
             }
             else if(currentSceneState == SCENE_RUNNING || currentSceneState == SCENE_RECOVERY)
             {
