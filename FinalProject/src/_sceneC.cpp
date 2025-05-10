@@ -134,8 +134,9 @@ GLvoid _sceneC::renderScene()
         case SCENE_RUNNING:
             if(collidedObstacle != nullptr)
                 collidedObstacle->actionTrigger = collidedObstacleW->actionTrigger = collidedObstacle->RUN;
+            spawnTimer->resumeTime();
         case SCENE_RECOVERY:
-            //spawnTimer->resumeTime();
+
             //player->actionTrigger = playerW->actionTrigger = player->RUN;
             break;
 
@@ -1093,7 +1094,7 @@ int _sceneC::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 if (currentSceneState == SCENE_PAUSE)
                     currentSceneState = SCENE_RECOVERY;
             }
-            else if(currentSceneState == SCENE_RUNNING || currentSceneState == SCENE_RECOVERY)
+            else if(currentSceneState == SCENE_RUNNING)
             {
                 if(wParam == 49 && availableResources >= TOWER_BASE_COST) // 1 on keyboard
                 {

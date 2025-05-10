@@ -220,7 +220,13 @@ int _sceneLanding::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case WM_KEYUP: break;
 
         case WM_LBUTTONDOWN:
-            if (currentSceneState == SCENE_RUNNING)
+        case WM_RBUTTONDOWN:
+        case WM_MBUTTONDOWN:
+            if (currentSceneState == SCENE_START)
+            {
+                currentSceneState = SCENE_RUNNING;
+            }
+            else if(currentSceneState == SCENE_RUNNING)
             {
                 float posX = LOWORD(lParam) / (float)dim.x;
                 float posY = HIWORD(lParam) / (float)dim.y;
@@ -250,35 +256,6 @@ int _sceneLanding::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 ) {
                     currentSceneState = SCENE_EXIT;
                 }
-            }
-            break;
-
-        case WM_RBUTTONDOWN:
-        case WM_MBUTTONDOWN:
-            if (currentSceneState == SCENE_START)
-            {
-                currentSceneState = SCENE_RUNNING;
-            }
-            else if(currentSceneState == SCENE_RUNNING)
-            {
-                if(mouseHoverState == HOVER_NEW)
-                {
-                    currentSceneState = SCENE_TRANSITION;
-                    snds->pauseMusic(backgroundMusic);
-                }
-                else if(mouseHoverState == HOVER_HELP)
-                {
-                    currentSceneState = SCENE_RECOVERY;
-                }
-                else if(mouseHoverState == HOVER_CREDITS)
-                {
-                    currentSceneState = SCENE_CREDITS;
-                }
-                else if(mouseHoverState == HOVER_EXIT)
-                {
-                    currentSceneState = SCENE_EXIT;
-                }
-
             }
 
             break;
