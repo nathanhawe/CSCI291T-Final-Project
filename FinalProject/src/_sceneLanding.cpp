@@ -169,7 +169,7 @@ int _sceneLanding::winMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     int prev = currentSceneState;
 
-    if (prev == SCENE_START)
+    if (prev == SCENE_START || prev == SCENE_CREDITS)
         snds->resumeMusic(backgroundMusic);
 
     switch(uMsg)

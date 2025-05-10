@@ -105,9 +105,9 @@ void _sceneManager::switchActiveScene()
         }
         else
         {
-            // If we don't have logic to exit the current scene, return to the menu
+            // If we don't have logic to exit the current scene, return to the menu and view credits
             activeScene = sceneLanding;
-            activeScene->currentSceneState = activeScene->SCENE_START;
+            activeScene->currentSceneState = activeScene->SCENE_CREDITS;
             cout << "Manager: Switched to Landing" << endl;
         }
     }
